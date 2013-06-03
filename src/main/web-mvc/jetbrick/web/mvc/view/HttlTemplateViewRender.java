@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Properties;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import jetbrick.commons.exception.HttpError;
 import jetbrick.commons.exception.SystemException;
 import jetbrick.web.mvc.RequestContext;
 import jetbrick.web.mvc.ViewRender;
@@ -78,30 +79,24 @@ public class HttlTemplateViewRender implements ViewRender {
 
     @Override
     public void render(RequestContext rc, String view) throws Throwable {
-        try {
-            Template template = engine.getTemplate(view);
-            if (template == null) {
-                rc.getResponse().sendError(404, "template not found: " + view);
-                return;
-            }
-
-            HttpServletRequest request = rc.getRequest();
-
-            Map<String, Object> context = rc.getAttributes();
-            context.put("request", request);
-            context.put("response", rc.getResponse());
-            context.put("session", rc.getSession());
-            context.put("application", rc.getServletContext());
-            context.put("parameters", request.getParameterMap());
-            context.put("cookies", request.getCookies());
-
-            ServletOutputStream out = rc.getResponse().getOutputStream();
-            template.render(rc.getAttributes(), out);
-            out.flush();
-
-        } catch (Exception e) {
-            throw SystemException.unchecked(e);
+        Template template = engine.getTemplate(view);
+        if (template == null) {
+            throw new SystemException(HttpError.STATUS_404, "jsp not found: " + view);
         }
+
+        HttpServletRequest request = rc.getRequest();
+
+        Map<String, Object> context = rc.getAttributes();
+        context.put("request", request);
+        context.put("response", rc.getResponse());
+        context.put("session", rc.getSession());
+        context.put("application", rc.getServletContext());
+        context.put("parameters", request.getParameterMap());
+        context.put("cookies", request.getCookies());
+
+        ServletOutputStream out = rc.getResponse().getOutputStream();
+        template.render(rc.getAttributes(), out);
+        out.flush();
     }
 
     @Override
