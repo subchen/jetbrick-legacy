@@ -192,7 +192,6 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
 
 			} else {
 				if (isColumnChanged(sc, dc)) {
-					log.warn("column type/size/nullable changed");
 					String sql = SqlUtils.sql_column_modify(sc);
 					executeJdbcWithFileLog(sql);
 				}
@@ -249,8 +248,15 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
 		builder.append(sc.getColumnName().toUpperCase(), dc.getColumnName().toUpperCase());
 		builder.append(column_type.toUpperCase(), dc.asSqlType().toUpperCase());
 		builder.append(sc.isNullable(), dc.isNullable());
-		return !builder.isEquals();
-	}
+        boolean changed = !builder.isEquals();
+
+        if (changed) {
+            String message = "changed column: " + sc.getColumnName();
+            message += ", type: " + dc.asSqlType().toUpperCase() + " -> " + column_type;
+            message += ", nullable: " + dc.isNullable() + " -> " + sc.isNullable();
+            log.warn(message);
+        }
+        return changed;	}
 
 	private void ensureCreate() {
 		PersistentDAO dao = DbUtils.dao();

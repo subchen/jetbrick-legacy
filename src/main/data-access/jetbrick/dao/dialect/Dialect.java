@@ -127,7 +127,7 @@ public abstract class Dialect {
 		} else if (SubStyleType.TEXT.equals(type)) {
 			return SqlType.newInstance("longvarchar", Integer.MAX_VALUE, null).toString();
 		} else if (SubStyleType.BOOLEAN.equals(type)) {
-			return "bit";
+			return "tinyint(1)";
 		} else if (SubStyleType.DATETIME_STRING.equals(type)) {
 			return "char(19)";
 		} else if (SubStyleType.DATE_STRING.equals(type)) {
