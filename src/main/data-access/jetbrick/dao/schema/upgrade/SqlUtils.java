@@ -14,7 +14,7 @@ public class SqlUtils {
 		String column_name = dialect.getIdentifier(c.getColumnName());
 		String column_type = dialect.asSqlType(c.getTypeName(), c.getTypeLength(), c.getTypeScale());
 		String column_definition = String.format("%s %s", column_name, column_type);
-		String column_position = (afterPosition == null) ? "first" : "after " + afterPosition.getColumnName();
+		String column_position = (afterPosition == null) ? "first" : "after " + dialect.getIdentifier(afterPosition.getColumnName());
 
 		return dialect.sql_column_add(table_name, column_definition, column_position);
 	}
