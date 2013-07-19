@@ -2,21 +2,18 @@ package jetbrick.web.mvc.view;
 
 import httl.Engine;
 import httl.Template;
-import java.io.File;
+import java.io.*;
 import java.util.Map;
 import java.util.Properties;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import jetbrick.commons.exception.HttpError;
 import jetbrick.commons.exception.SystemException;
 import jetbrick.web.mvc.RequestContext;
-import jetbrick.web.mvc.ViewRender;
 import jetbrick.web.mvc.config.WebappConfig;
 import org.apache.commons.lang.StringUtils;
 
-public class HttlTemplateViewRender implements ViewRender {
+public class HttlTemplateViewRender extends AbstractViewRender {
     private final Engine engine;
-    private String viewPattern = "*.httl";
 
     public HttlTemplateViewRender() {
         this(new Properties());
@@ -25,8 +22,9 @@ public class HttlTemplateViewRender implements ViewRender {
     public HttlTemplateViewRender(Properties config) {
         Properties properties = getDefaultProperties();
         properties.putAll(config);
-
         engine = Engine.getEngine(properties);
+        
+        viewPattern = "*.httl";
     }
 
     private Properties getDefaultProperties() {
@@ -73,19 +71,37 @@ public class HttlTemplateViewRender implements ViewRender {
         return config;
     }
 
-    public void setViewPattern(String viewPattern) {
-        this.viewPattern = viewPattern;
-    }
-
     @Override
     public void render(RequestContext rc, String view) throws Throwable {
-        Template template = engine.getTemplate(view);
-        if (template == null) {
-            throw new SystemException(HttpError.STATUS_404, "jsp not found: " + view);
+        Map<String, Object> context = getContext(rc);
+
+        OutputStream out = rc.getResponse().getOutputStream();
+        String layoutView = (String) context.get(layoutKey);
+        if (layoutView == null) {
+            // no layout 
+            getTemplate(view).render(context, out);
+        } else {
+            // output main content 
+            ByteArrayOutputStream os = new ByteArrayOutputStream(4096);
+            getTemplate(view).render(context, os);
+            context.put(mainContentKey, os.toString(WebappConfig.getInstance().getEncoding()));
+
+            // output layout 
+            getTemplate(layoutView).render(context, out);
         }
+        out.flush();
+    }
 
+    private Template getTemplate(String url) throws Throwable {
+        Template template = engine.getTemplate(url);
+        if (template == null) {
+            throw new SystemException(HttpError.STATUS_404, "HTTL template not found: " + url);
+        }
+        return template;
+    }
+
+    private Map<String, Object> getContext(RequestContext rc) {
         HttpServletRequest request = rc.getRequest();
-
         Map<String, Object> context = rc.getAttributes();
         context.put("request", request);
         context.put("response", rc.getResponse());
@@ -93,15 +109,6 @@ public class HttlTemplateViewRender implements ViewRender {
         context.put("application", rc.getServletContext());
         context.put("parameters", request.getParameterMap());
         context.put("cookies", request.getCookies());
-
-        ServletOutputStream out = rc.getResponse().getOutputStream();
-        template.render(rc.getAttributes(), out);
-        out.flush();
-    }
-
-    @Override
-    public String getDefaultViewName(String viewName) {
-        viewName = StringUtils.replace(viewPattern, "*", viewName);
-        return viewName;
+        return context;
     }
 }
