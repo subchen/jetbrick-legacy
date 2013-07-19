@@ -3,9 +3,11 @@ package jetbrick.web.mvc;
 import java.util.*;
 import javax.servlet.ServletContext;
 import javax.servlet.http.*;
-import org.apache.commons.collections.EnumerationUtils;
 import jetbrick.web.mvc.config.WebappConfig;
+import jetbrick.web.mvc.multipart.FileItem;
+import jetbrick.web.mvc.multipart.FileUploaderRequest;
 import jetbrick.web.utils.RequestIntrospects;
+import org.apache.commons.collections.EnumerationUtils;
 
 public class RequestContext {
     private final static ThreadLocal<RequestContext> requestContextHolder = new ThreadLocal<RequestContext>();
@@ -115,6 +117,28 @@ public class RequestContext {
     public Long getRestfulParameterAsLong(int index) {
         String value = getRestfulParameter(index);
         return value == null ? null : Long.valueOf(value);
+    }
+
+    public FileItem getFile(String name) {
+        if (request instanceof FileUploaderRequest) {
+            return ((FileUploaderRequest) request).getFile(name);
+        }
+        return null;
+    }
+
+    public Collection<FileItem> getFiles() {
+        if (request instanceof FileUploaderRequest) {
+            return ((FileUploaderRequest) request).getFiles().values();
+        }
+        return Collections.emptyList();
+    }
+
+    public FileItem getUniqueFile() {
+        Collection<FileItem> files = getFiles();
+        if (files.size() > 0) {
+            return files.iterator().next();
+        }
+        return null;
     }
 
     //---- attributes ------------------------------------------------
