@@ -120,9 +120,19 @@ public abstract class ServletUtils {
         }
     }
 
+    // 是否是Ajax请求数据
+    public static boolean isAjaxRequest(HttpServletRequest request) {
+        return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+    }
+    
+    // 是否是Pjax请求数据: https://github.com/defunkt/jquery-pjax
+    public static boolean isPjaxRequest(HttpServletRequest request) {
+        return StringUtils.isNotEmpty(request.getHeader("X-PJAX"));
+    }
+
     // 是否是Flash请求数据
     public static boolean isFlashRequest(HttpServletRequest request) {
-        return ("Shockwave Flash".equals(request.getHeader("User-Agent")));
+        return "Shockwave Flash".equals(request.getHeader("User-Agent")) || StringUtils.isNotEmpty(request.getHeader("x-flash-version"));
     }
 
     // 是否是文件上传
