@@ -87,10 +87,12 @@ public final class DispatcherFilter implements Filter {
 
         RouteInfo routeInfo = router.getRouteInfo(request);
 
-        // support multipart request
-        request = FileUploaderUtils.asRequest(request, SystemUtils.getJavaIoTmpDir());
-        RequestContext rc = new RequestContext(config, request, response, routeInfo);
+		RequestContext rc = null;
         try {
+        	// support multipart request
+        	request = FileUploaderUtils.asRequest(request, config.getUploadDirectory());
+        	rc = new RequestContext(config, request, response, routeInfo);
+        
             List<Interceptor> interceptors = config.getInterceptorList();
             InterceptorChainImpl interceptorChain = new InterceptorChainImpl(interceptors);
             interceptorChain.invork(rc);
@@ -115,7 +117,7 @@ public final class DispatcherFilter implements Filter {
                 throw SystemException.unchecked(ex);
             }
         } finally {
-            rc.destory();
+            if (rc != null) rc.destory();
         }
     }
 

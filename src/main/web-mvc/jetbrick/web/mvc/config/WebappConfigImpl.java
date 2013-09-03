@@ -13,8 +13,6 @@ import org.apache.commons.configuration.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 public class WebappConfigImpl extends WebappConfig {
     private static final Logger log = LoggerFactory.getLogger(WebappConfigImpl.class);
@@ -24,17 +22,15 @@ public class WebappConfigImpl extends WebappConfig {
     private Router router;
     private ViewRender viewRender;
     private ExceptionHandler exceptionHandler;
-    private MultipartResolver multipartResolver;
     private List<Interceptor> interceptors = new ArrayList<Interceptor>();
     private List<Plugin> plugins = new ArrayList<Plugin>();
 
     public void init(FilterConfig filterConfig) throws ServletException {
         this.filterConfig = filterConfig;
         this.servletContext = filterConfig.getServletContext();
-        this.webappRoot = new File(servletContext.getRealPath("/"));
+        this.webappRoot = new File(servletContext.getRealPath("/")).getAbsoluteFile();
 
         lookupSpringAppContext();
-        lookupMultipartResolver();
         lookupConfiguration();
 
         // load config from user
@@ -60,6 +56,7 @@ public class WebappConfigImpl extends WebappConfig {
         encoding = userConfig.getEncoding();
         cacheOff = userConfig.isCacheOff();
         developmentMode = userConfig.isDevelopmentMode();
+        uploadDirectory = userConfig.getUploadDirectory();
 
         exceptionHandler = userConfig.getExceptionHandler();
         router = userConfig.getRouter();
@@ -112,16 +109,6 @@ public class WebappConfigImpl extends WebappConfig {
         }
     }
 
-    private void lookupMultipartResolver() {
-        try {
-            Class.forName("org.apache.commons.fileupload.FileUpload");
-            multipartResolver = new CommonsMultipartResolver();
-            log.info("using commons-fileupload for file upload.");
-        } catch (ClassNotFoundException e) {
-            log.warn("commons-fileupload.jar not found! file upload capability does not support.");
-        }
-    }
-
     public Router getRouter() {
         return router;
     }
@@ -142,7 +129,4 @@ public class WebappConfigImpl extends WebappConfig {
         return plugins;
     }
 
-    public MultipartResolver getMultipartResolver() {
-        return multipartResolver;
-    }
 }

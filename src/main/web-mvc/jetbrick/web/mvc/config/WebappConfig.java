@@ -18,6 +18,7 @@ public abstract class WebappConfig {
     protected Object springAppContext;
     protected String encoding;
     protected boolean cacheOff;
+    protected File uploadDirectory;
 
     protected WebappConfig() {
         defaultConfigInstance = this;
@@ -32,8 +33,16 @@ public abstract class WebappConfig {
         return webappRoot;
     }
 
-    public File getWebappPath(String path) {
+    public File getWebappFile(String path) {
         return new File(webappRoot, path);
+    }
+
+    public File getUploadDirectory() {
+        return uploadDirectory;
+    }
+
+    public File getUploadFile(String path) {
+        return new File(uploadDirectory, path);
     }
 
     public ServletContext getServletContext() {

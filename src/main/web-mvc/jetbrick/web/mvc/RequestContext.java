@@ -6,7 +6,7 @@ import javax.servlet.http.*;
 import jetbrick.web.mvc.config.WebappConfig;
 import jetbrick.web.mvc.multipart.FileItem;
 import jetbrick.web.mvc.multipart.FileUploaderRequest;
-import jetbrick.web.utils.RequestIntrospects;
+import jetbrick.web.utils.RequestIntrospectUtils;
 import org.apache.commons.collections.EnumerationUtils;
 
 public class RequestContext {
@@ -63,7 +63,7 @@ public class RequestContext {
 
     //---- parameters ------------------------------------------------
     public <T> T getInputs(T form) {
-        RequestIntrospects.introspect(form, request);
+        RequestIntrospectUtils.introspect(form, request);
         return form;
     }
 

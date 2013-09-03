@@ -16,16 +16,16 @@ import org.apache.commons.lang3.StringUtils;
  * <li>serlvetContext.getAttribute</li>
  * </ol>
  */
-public class JspResolver {
+public class JspResolverUtils {
     protected final HttpServletRequest request;
     protected final PageContext pageContext;
 
-    public JspResolver(HttpServletRequest request) {
+    public JspResolverUtils(HttpServletRequest request) {
         this.pageContext = null;
         this.request = request;
     }
 
-    public JspResolver(PageContext pageContext) {
+    public JspResolverUtils(PageContext pageContext) {
         this.pageContext = pageContext;
         this.request = ((HttpServletRequest) pageContext.getRequest());
     }

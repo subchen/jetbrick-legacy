@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import javax.servlet.http.*;
+import jetbrick.commons.exception.SystemException;
 import jetbrick.commons.lang.EncodeUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,11 @@ public abstract class ServletUtils {
         if (webapps.startsWith("file:")) {
             webapps = StringUtils.substringAfter(webapps, "file:");
         }
-        return new File(webapps).getCanonicalFile();
+        try {
+            return new File(webapps).getCanonicalFile();
+        } catch (IOException e) {
+            throw SystemException.unchecked(e);
+        }
     }
 
     public static JSONObject getRequestJSON(HttpServletRequest request) {
