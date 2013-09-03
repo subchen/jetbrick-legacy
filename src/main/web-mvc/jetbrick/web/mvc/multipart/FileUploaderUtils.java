@@ -8,6 +8,7 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,12 +53,15 @@ public class FileUploaderUtils {
                     req.setParameter(fieldName, Streams.asString(stream));
                 } else {
                     String originalFilename = item.getName();
-                    File diskFile = new File(uploadSavePath, RandomStringUtils.randomAlphanumeric(16));
+                    File diskFile = getTempFile(uploadSavePath, originalFilename);
 
                     OutputStream fos = new FileOutputStream(diskFile);
-                    IOUtils.copy(stream, fos);
-                    IOUtils.closeQuietly(fos);
-
+                    try {
+                        IOUtils.copy(stream, fos);
+                    } finally {
+                        IOUtils.closeQuietly(fos);
+                    }
+                    
                     FileItem fileItem = new FileItem(fieldName, originalFilename, diskFile);
                     req.setFile(fileItem.getFieldName(), fileItem);
                 }
@@ -73,14 +77,14 @@ public class FileUploaderUtils {
     private static FileUploaderRequest asHtml5Request(HttpServletRequest request, File uploadSavePath) throws Throwable {
         String originalFilename = request.getHeader("content-disposition");
         if (originalFilename == null) {
-            throw new ServletException("The request is not a html 5 file upload request.");
+            throw new ServletException("The request is not a html5 file upload request.");
         }
         originalFilename = new String(originalFilename.getBytes("iso8859-1"), request.getCharacterEncoding());
         originalFilename = StringUtils.substringAfter(originalFilename, "; filename=");
         originalFilename = StringUtils.remove(originalFilename, "\"");
         originalFilename = URLDecoder.decode(originalFilename, "utf-8");
 
-        File diskFile = new File(uploadSavePath, RandomStringUtils.randomAlphanumeric(16));
+        File diskFile = getTempFile(uploadSavePath, originalFilename);
 
         InputStream fis = request.getInputStream();
         OutputStream fos = new FileOutputStream(diskFile);
@@ -95,5 +99,14 @@ public class FileUploaderUtils {
         FileItem fileItem = new FileItem("unknown", originalFilename, diskFile);
         req.setFile(fileItem.getFieldName(), fileItem);
         return req;
+    }
+    
+    private static File getTempFile(File uploadSavePath, String originalFilename) {
+        String fileExt = FilenameUtils.getExtension(originalFilename);
+        String fileName = RandomStringUtils.randomAlphanumeric(16);
+        if (StringUtils.isNotEmpty(fileExt)) {
+            fileName = fileName + "." + fileExt;
+        }
+        return new File(uploadSavePath, fileName);
     }
 }
