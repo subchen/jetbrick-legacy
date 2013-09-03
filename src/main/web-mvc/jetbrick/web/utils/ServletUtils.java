@@ -26,7 +26,7 @@ public abstract class ServletUtils {
         if (webapps.startsWith("file:")) {
             webapps = StringUtils.substringAfter(webapps, "file:");
         }
-        return new File(webapps);
+        return new File(webapps).getCanonicalFile();
     }
 
     public static JSONObject getRequestJSON(HttpServletRequest request) {
