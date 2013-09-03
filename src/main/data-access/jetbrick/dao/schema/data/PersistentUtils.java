@@ -67,11 +67,11 @@ public class PersistentUtils {
         return cache;
     }
 
-    public static <T extends PersistentData> Map<Long, T> map(List<T> dataList) {
+    public static <T extends PersistentData> Map<Integer, T> map(List<T> dataList) {
         if (dataList == null || dataList.size() == 0) {
             return Collections.emptyMap();
         }
-        Map<Long, T> map = new HashMap<Long, T>();
+        Map<Integer, T> map = new HashMap<Integer, T>();
         for (T data : dataList) {
             map.put(data.getId(), data);
         }

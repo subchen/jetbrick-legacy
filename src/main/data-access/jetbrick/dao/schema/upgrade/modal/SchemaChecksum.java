@@ -1,6 +1,5 @@
 package jetbrick.dao.schema.upgrade.modal;
 
-import jetbrick.dao.id.SequenceId;
 import jetbrick.dao.schema.data.*;
 import jetbrick.dao.utils.DbUtils;
 import com.alibaba.fastjson.JSONObject;
@@ -43,7 +42,7 @@ public class SchemaChecksum extends PersistentData {
 		schema.setTimestamp(null);
 
 		// column list
-		SC_ID = schema.addColumn("id", Long.class, "id", "long", null, null, false, null, "ID", null, true, null, true);
+		SC_ID = schema.addColumn("id", Integer.class, "id", "long", null, null, false, null, "ID", null, true, null, true);
 		SC_NAME = schema.addColumn("name", String.class, "name", "varchar", 50, null, false, null, "名称", null, false, null, true);
 		SC_TYPE = schema.addColumn("type", String.class, "type", "varchar", 20, null, false, null, "类型", null, false, null, true);
 		SC_CHECKSUM = schema.addColumn("checksum", String.class, "checksum", "char", 32, null, false, null, "校验码", null, false, null, true);
@@ -54,10 +53,10 @@ public class SchemaChecksum extends PersistentData {
 	}
 
 	//------- id ------------------------------------------------------
-	private static final SequenceId sequenceId = DbUtils.dao().createSequenceId(SCHEMA);
+	private static final jetbrick.dao.id.SequenceId sequenceId = DbUtils.dao().createSequenceId(SCHEMA);
 
 	@Override
-    public Long generateId() {
+    public Integer generateId() {
         if (id == null) {
             id = sequenceId.nextVal();
         }

@@ -65,14 +65,14 @@ public abstract class PersistentJdbcTemplate {
 		return jdbc.update(sql, data.getId());
 	}
 
-	protected int jdbc_delete(Class<? extends PersistentData> schemaClass, Long id) {
+	protected int jdbc_delete(Class<? extends PersistentData> schemaClass, Integer id) {
 		SchemaInfo<?> schema = PersistentUtils.getSchema(schemaClass);
 		String tableName = dialect.getIdentifier(schema.getTableName());
 		String sql = "delete from " + tableName + " where id=?";
 		return jdbc.update(sql, id);
 	}
 
-	protected <T extends PersistentData> T jdbc_get(Class<T> schemaClass, Long id) {
+	protected <T extends PersistentData> T jdbc_get(Class<T> schemaClass, Integer id) {
 		SchemaInfo<T> schema = PersistentUtils.getSchema(schemaClass);
 		String tableName = dialect.getIdentifier(schema.getTableName());
 		String sql = "select * from " + tableName + " where id=?";
@@ -100,7 +100,7 @@ public abstract class PersistentJdbcTemplate {
 		return jdbc.queryAsList(schemaClass, sql, value);
 	}
 
-	protected <T extends PersistentData> List<T> jdbc_get_some(Class<T> schemaClass, Long... ids) {
+	protected <T extends PersistentData> List<T> jdbc_get_some(Class<T> schemaClass, Integer... ids) {
 		SchemaInfo<T> schema = PersistentUtils.getSchema(schemaClass);
 		String tableName = dialect.getIdentifier(schema.getTableName());
 		String values = StringUtils.repeat("?", ",", ids.length);

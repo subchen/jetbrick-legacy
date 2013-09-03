@@ -50,7 +50,7 @@ public class PersistentDAO extends PersistentJdbcTemplate {
         }
     }
 
-    public int delete(Class<? extends PersistentData> schemaClass, Long id) {
+    public int delete(Class<? extends PersistentData> schemaClass, Integer id) {
         int result = jdbc_delete(schemaClass, id);
 
         PersistentCache<? extends PersistentData> cache = PersistentUtils.getCache(schemaClass);
@@ -185,7 +185,7 @@ public class PersistentDAO extends PersistentJdbcTemplate {
     }
 
     //---------------------------------------------------------------------------
-    public <T extends PersistentData> T get(Class<T> schemaClass, Long id) {
+    public <T extends PersistentData> T get(Class<T> schemaClass, Integer id) {
         PersistentCache<T> cache = PersistentUtils.getCache(schemaClass);
         T data = cache.get(id);
         if (data == null) {
@@ -198,7 +198,7 @@ public class PersistentDAO extends PersistentJdbcTemplate {
         PersistentCache<T> cache = PersistentUtils.getCache(schemaClass);
 
         String key = cache.key("get", "", name, value);
-        Long[] ids = cache.get(key);
+        Integer[] ids = cache.get(key);
         if (ids == null) {
             SchemaInfo<T> schema = PersistentUtils.getSchema(schemaClass);
             String tableName = dialect.getIdentifier(schema.getTableName());
@@ -216,7 +216,7 @@ public class PersistentDAO extends PersistentJdbcTemplate {
         PersistentCache<T> cache = PersistentUtils.getCache(schemaClass);
 
         String key = cache.key("getSome", "", name, value, sort);
-        Long[] ids = cache.get(key);
+        Integer[] ids = cache.get(key);
         if (ids == null) {
             SchemaInfo<T> schema = PersistentUtils.getSchema(schemaClass);
             String tableName = dialect.getIdentifier(schema.getTableName());
@@ -230,19 +230,19 @@ public class PersistentDAO extends PersistentJdbcTemplate {
         }
     }
 
-    public <T extends PersistentData> List<T> getSome(Class<T> schemaClass, Long... ids) {
+    public <T extends PersistentData> List<T> getSome(Class<T> schemaClass, Integer... ids) {
         if (ids == null || ids.length == 0) return Collections.emptyList();
 
-        final List<Long> ids_pos = new ArrayList<Long>(ids.length);
+        final List<Integer> ids_pos = new ArrayList<Integer>(ids.length);
         final List<T> results = new ArrayList<T>(ids.length);
 
-        for (Long id : ids) {
+        for (Integer id : ids) {
             ids_pos.add(id);
             results.add(null);
         }
 
         PersistentCache<T> cache = PersistentUtils.getCache(schemaClass);
-        final List<Long> no_cache_ids = new ArrayList<Long>();
+        final List<Integer> no_cache_ids = new ArrayList<Integer>();
         for (int i = 0; i < ids.length; i++) {
             T data = (T) cache.get(ids[i]);
             if (data != null) {
@@ -253,7 +253,7 @@ public class PersistentDAO extends PersistentJdbcTemplate {
         }
 
         if (no_cache_ids.size() > 0) {
-            List<T> no_cache_objs = jdbc_get_some(schemaClass, (Long[]) no_cache_ids.toArray());
+            List<T> no_cache_objs = jdbc_get_some(schemaClass, (Integer[]) no_cache_ids.toArray());
             for (T data : no_cache_objs) {
                 results.set(ids_pos.indexOf(data.getId()), data);
             }
@@ -266,7 +266,7 @@ public class PersistentDAO extends PersistentJdbcTemplate {
         PersistentCache<T> cache = PersistentUtils.getCache(schemaClass);
 
         String key = cache.key("getAll", "", (Object[]) sort);
-        Long[] ids = cache.get(key);
+        Integer[] ids = cache.get(key);
         if (ids == null) {
             SchemaInfo<T> schema = PersistentUtils.getSchema(schemaClass);
             String tableName = dialect.getIdentifier(schema.getTableName());
@@ -286,7 +286,7 @@ public class PersistentDAO extends PersistentJdbcTemplate {
         PersistentCache<T> cache = PersistentUtils.getCache(schemaClass);
 
         String key = cache.key("queryAsObject", sql, parameters);
-        Long[] ids = cache.get(key);
+        Integer[] ids = cache.get(key);
         if (ids == null) {
             T result = jdbc.queryAsObject(schemaClass, sql, parameters);
             return cache.put(key, result);
@@ -299,7 +299,7 @@ public class PersistentDAO extends PersistentJdbcTemplate {
         PersistentCache<T> cache = PersistentUtils.getCache(schemaClass);
 
         String key = cache.key("queryAsList", sql, parameters);
-        Long[] ids = cache.get(key);
+        Integer[] ids = cache.get(key);
         if (ids == null) {
             List<T> dataList = jdbc.queryAsList(schemaClass, sql, parameters);
             return cache.put(key, dataList);
@@ -325,7 +325,7 @@ public class PersistentDAO extends PersistentJdbcTemplate {
 
         List<?> items;
         String key = cache.key("queryAsPageList-items", sql, parameters);
-        Long[] ids = cache.get(key);
+        Integer[] ids = cache.get(key);
         if (ids == null) {
             items = Collections.emptyList();
             if (pagelist.getCount() > 0) {

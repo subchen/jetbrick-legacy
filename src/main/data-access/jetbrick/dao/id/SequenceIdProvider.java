@@ -4,10 +4,10 @@ public interface SequenceIdProvider {
 
     public SequenceId create(String name);
 
-    public SequenceId create(String name, long begin);
+    public SequenceId create(String name, int begin);
 
-    public long load(String name);
+    public int load(String name);
 
-    public void store(String name, long value);
+    public void store(String name, int value);
 
 }

@@ -12,18 +12,18 @@ import com.alibaba.fastjson.JSONObject;
 public abstract class PersistentData implements Serializable, Cloneable, JSONAware {
 
 	//------ id -----------------------------------------
-	protected Long id;
+	protected Integer id;
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
 	//生成并返回ID
-	public abstract Long generateId();
+	public abstract Integer generateId();
 
 	//------ schema -----------------------------------------
 	public abstract SchemaInfo<? extends PersistentData> getSchema();

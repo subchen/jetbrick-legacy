@@ -1,14 +1,14 @@
 package jetbrick.dao.id;
 
 public class SequenceId {
-    public static final long NOT_FOUND = 0;
-    private static final long CACHE_SIZE = 50;
+    public static final int NOT_FOUND = 0;
+    private static final int CACHE_SIZE = 50;
     private final SequenceIdProvider provider;
     private final String name;
-    private final long beginValue;
-    private long value;
+    private final int beginValue;
+    private int value;
 
-    protected SequenceId(SequenceIdProvider provider, String name, long beginValue) {
+    protected SequenceId(SequenceIdProvider provider, String name, int beginValue) {
         this.provider = provider;
         this.name = name;
         this.beginValue = beginValue;
@@ -23,7 +23,7 @@ public class SequenceId {
         return name;
     }
 
-    public synchronized long nextVal() {
+    public synchronized int nextVal() {
         if (value < 0) {
             value = provider.load(name);
             if (value <= NOT_FOUND) {

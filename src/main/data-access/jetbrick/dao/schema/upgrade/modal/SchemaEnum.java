@@ -1,6 +1,5 @@
 package jetbrick.dao.schema.upgrade.modal;
 
-import jetbrick.dao.id.SequenceId;
 import jetbrick.dao.schema.data.*;
 import jetbrick.dao.utils.DbUtils;
 import com.alibaba.fastjson.JSONObject;
@@ -43,7 +42,7 @@ public class SchemaEnum extends PersistentData {
 		schema.setTimestamp(null);
 
 		// column list
-		SC_ID = schema.addColumn("id", Long.class, "id", "long", null, null, false, null, "ID", null, true, null, true);
+		SC_ID = schema.addColumn("id", Integer.class, "id", "long", null, null, false, null, "ID", null, true, null, true);
 		SC_PID = schema.addColumn("pid", String.class, "pid", "int", null, null, false, null, "分组ID", null, false, null, true);
 		SC_NAME = schema.addColumn("name", String.class, "name", "varchar", 50, null, false, null, "名称", null, false, null, true);
 		SC_DEFINE_NAME = schema.addColumn("defineName", String.class, "define_name", "varchar", 50, null, true, null, "变量名", null, false, null, true);
@@ -54,10 +53,10 @@ public class SchemaEnum extends PersistentData {
 	}
 
     //------- id ------------------------------------------------------
-    private static final SequenceId sequenceId = DbUtils.dao().createSequenceId(SCHEMA);
+    private static final jetbrick.dao.id.SequenceId sequenceId = DbUtils.dao().createSequenceId(SCHEMA);
 
     @Override
-    public Long generateId() {
+    public Integer generateId() {
         if (id == null) {
             id = sequenceId.nextVal();
         }

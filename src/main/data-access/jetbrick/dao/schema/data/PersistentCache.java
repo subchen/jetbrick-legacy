@@ -27,7 +27,7 @@ public class PersistentCache<T extends PersistentData> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public T get(Long id) {
+	public T get(Integer id) {
 		if (schema_cache == null) return null;
 		return (T) schema_cache.get(id);
 	}
@@ -55,15 +55,15 @@ public class PersistentCache<T extends PersistentData> {
 		}
 	}
 
-	public void evict(Long id) {
+	public void evict(Integer id) {
 		if (schema_cache != null) {
 			schema_cache.remove(id);
 		}
 	}
 
-	public void evict(Long... ids) {
+	public void evict(Integer... ids) {
 		if (schema_cache != null) {
-			for (Long id : ids) {
+			for (Integer id : ids) {
 				schema_cache.remove(id);
 			}
 		}
@@ -81,17 +81,17 @@ public class PersistentCache<T extends PersistentData> {
 		return "sql:" + prefix + ":" + key.hashCode();
 	}
 
-	public Long[] get(String key) {
+	public Integer[] get(String key) {
 		if (sql_ids_cache == null) return null;
-		return (Long[]) sql_ids_cache.get(key);
+		return (Integer[]) sql_ids_cache.get(key);
 	}
 
 	public List<T> put(String key, List<T> dataList) {
 		if (sql_ids_cache != null) {
-			Long[] ids = ArrayUtils.EMPTY_LONG_OBJECT_ARRAY;
+		    Integer[] ids = ArrayUtils.EMPTY_INTEGER_OBJECT_ARRAY;
 
 			if (dataList != null && dataList.size() > 0) {
-				ids = new Long[dataList.size()];
+				ids = new Integer[dataList.size()];
 				for (int i = 0; i < ids.length; i++) {
 					T data = dataList.get(i);
 					ids[i] = data.getId();
@@ -105,7 +105,7 @@ public class PersistentCache<T extends PersistentData> {
 
 	public T put(String key, T data) {
 		if (sql_ids_cache != null) {
-			sql_ids_cache.put(key, new Long[] { data.getId() });
+			sql_ids_cache.put(key, new Integer[] { data.getId() });
 		}
 		if (schema_cache != null) {
 			schema_cache.put(data.getId(), data);

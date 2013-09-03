@@ -62,7 +62,7 @@ public class SchemaEnumUpgradeTask extends UpgradeTask {
 				// update
 				for (XmlNode child : node.elements()) {
 					SchemaEnum info = SchemaEnum.newInstance();
-					info.setId(child.attribute("id").asLong());
+					info.setId(child.attribute("id").asInt());
 					info.setPid(g_pid);
 					info.setName(child.attribute("name").asString());
 					info.setDefineName(child.attribute("var").asString());
@@ -98,7 +98,7 @@ public class SchemaEnumUpgradeTask extends UpgradeTask {
 		List<SchemaEnum> new_queue = new ArrayList<SchemaEnum>();
 		List<SchemaEnum> update_queue = new ArrayList<SchemaEnum>();
 
-		Map<Long, SchemaEnum> db_enum_map = PersistentUtils.map(dao.getAll(SchemaEnum.class));
+		Map<Integer, SchemaEnum> db_enum_map = PersistentUtils.map(dao.getAll(SchemaEnum.class));
 
 		for (SchemaEnum xml_en : enumQueue) {
 			SchemaEnum db_en = db_enum_map.get(xml_en.getId());

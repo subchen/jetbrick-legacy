@@ -20,7 +20,7 @@ public class JdbcSequenceIdProvider implements SequenceIdProvider {
     }
 
     @Override
-    public SequenceId create(String name, long begin) {
+    public SequenceId create(String name, int begin) {
         return new SequenceId(this, name, begin);
     }
 
@@ -57,8 +57,8 @@ public class JdbcSequenceIdProvider implements SequenceIdProvider {
     }
 
     @Override
-    public long load(String name) {
-        long value = SequenceId.NOT_FOUND;
+    public int load(String name) {
+        int value = SequenceId.NOT_FOUND;
         Connection conn = null;
         try {
             conn = dataSource.getConnection();
@@ -67,7 +67,7 @@ public class JdbcSequenceIdProvider implements SequenceIdProvider {
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                value = rs.getLong(1);
+                value = rs.getInt(1);
             }
             rs.close();
             ps.close();
@@ -80,13 +80,13 @@ public class JdbcSequenceIdProvider implements SequenceIdProvider {
     }
 
     @Override
-    public void store(String name, long value) {
+    public void store(String name, int value) {
         Connection conn = null;
         try {
             conn = dataSource.getConnection();
             String sql = "update " + TABLE_NAME + " set next_val=? where name=?";
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setLong(1, value);
+            ps.setInt(1, value);
             ps.setString(2, name);
             int updated = ps.executeUpdate();
             ps.close();
@@ -95,7 +95,7 @@ public class JdbcSequenceIdProvider implements SequenceIdProvider {
                 sql = "insert into " + TABLE_NAME + " (name, next_val) values (?,?)";
                 ps = conn.prepareStatement(sql);
                 ps.setString(1, name);
-                ps.setLong(2, value);
+                ps.setInt(2, value);
                 ps.executeUpdate();
                 ps.close();
             }
