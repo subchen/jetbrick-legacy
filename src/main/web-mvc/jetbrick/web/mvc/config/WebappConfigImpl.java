@@ -57,6 +57,9 @@ public class WebappConfigImpl extends WebappConfig {
         cacheOff = userConfig.isCacheOff();
         developmentMode = userConfig.isDevelopmentMode();
         uploadDirectory = userConfig.getUploadDirectory();
+        if (!uploadDirectory.exists()) {
+            uploadDirectory.mkdirs();
+        }
 
         exceptionHandler = userConfig.getExceptionHandler();
         router = userConfig.getRouter();
