@@ -12,7 +12,6 @@ import jetbrick.web.mvc.intercept.InterceptorChainImpl;
 import jetbrick.web.mvc.multipart.FileUploaderUtils;
 import jetbrick.web.mvc.plugin.Plugin;
 import jetbrick.web.utils.ServletUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,12 +86,12 @@ public final class DispatcherFilter implements Filter {
 
         RouteInfo routeInfo = router.getRouteInfo(request);
 
-		RequestContext rc = null;
+        RequestContext rc = null;
         try {
-        	// support multipart request
-        	request = FileUploaderUtils.asRequest(request, config.getUploadDirectory());
-        	rc = new RequestContext(config, request, response, routeInfo);
-        
+            // support multipart request
+            request = FileUploaderUtils.asRequest(request, config.getUploadDirectory());
+            rc = new RequestContext(config, request, response, routeInfo);
+
             List<Interceptor> interceptors = config.getInterceptorList();
             InterceptorChainImpl interceptorChain = new InterceptorChainImpl(interceptors);
             interceptorChain.invork(rc);
