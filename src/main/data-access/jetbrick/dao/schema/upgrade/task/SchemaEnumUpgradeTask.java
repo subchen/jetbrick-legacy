@@ -6,7 +6,7 @@ import jetbrick.commons.lang.DateUtils;
 import jetbrick.commons.xml.XmlNode;
 import jetbrick.dao.schema.data.*;
 import jetbrick.dao.schema.upgrade.UpgradeLogger;
-import jetbrick.dao.schema.upgrade.modal.*;
+import jetbrick.dao.schema.upgrade.model.*;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.lang3.StringUtils;

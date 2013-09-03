@@ -3,7 +3,7 @@ package jetbrick.dao.schema.upgrade;
 import jetbrick.dao.dialect.Dialect;
 import jetbrick.dao.schema.data.SchemaColumn;
 import jetbrick.dao.schema.data.SchemaInfo;
-import jetbrick.dao.schema.upgrade.modal.DbColumn;
+import jetbrick.dao.schema.upgrade.model.DbColumn;
 import jetbrick.dao.utils.DbUtils;
 
 public class SqlUtils {

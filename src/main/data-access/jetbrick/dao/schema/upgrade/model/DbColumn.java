@@ -1,4 +1,4 @@
-package jetbrick.dao.schema.upgrade.modal;
+package jetbrick.dao.schema.upgrade.model;
 
 import jetbrick.dao.dialect.SqlType;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;

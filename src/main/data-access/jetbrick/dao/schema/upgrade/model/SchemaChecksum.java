@@ -1,4 +1,4 @@
-package jetbrick.dao.schema.upgrade.modal;
+package jetbrick.dao.schema.upgrade.model;
 
 import jetbrick.dao.schema.data.*;
 import jetbrick.dao.utils.DbUtils;
