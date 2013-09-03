@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import jetbrick.commons.exception.HttpError;
+import jetbrick.commons.exception.SystemException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.alibaba.fastjson.JSONAware;
@@ -94,6 +96,9 @@ public class Result {
     private void doFileInputStreamRender(RequestContext rc) throws IOException {
         InputStream is;
         if (File.class.isAssignableFrom(resultClass)) {
+            if (!((File) result).exists()) {
+                throw new SystemException(HttpError.STATUS_404, "file not found: " + result);
+            }
             is = new FileInputStream((File) result);
         } else {
             is = (InputStream) result;
