@@ -93,12 +93,12 @@ public class RequestContext {
         return EnumerationUtils.toList(request.getHeaders(key));
     }
 
-    public Long getId() {
-        return getParameterAsLong("id");
+    public Integer getId() {
+        return getParameterAsInt("id");
     }
 
-    public Long getParentId() {
-        return getParameterAsLong("parentId");
+    public Integer getParentId() {
+        return getParameterAsInt("parentId");
     }
 
     public String getRestfulParameter(int index) {
