@@ -78,6 +78,9 @@ public class Result {
     private void doJsonRender(RequestContext rc) throws IOException {
         JSONAware json = (JSONAware) result;
 
+        if (json == null) {
+            json = new JSONObject();
+        }
         if (json instanceof JSONObject) {
             for (Map.Entry<String, Object> entry : rc.getAttributes().entrySet()) {
                 ((JSONObject) json).put(entry.getKey(), entry.getValue());
