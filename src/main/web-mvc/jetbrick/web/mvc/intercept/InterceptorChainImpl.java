@@ -44,22 +44,29 @@ public class InterceptorChainImpl implements InterceptorChain {
             log.warn("Controller not found, forward view directly.");
             result = Result.DEFAULT_VIEW;
         } else {
+            //Using byte-code enhancement to dispatch action.
             //Controller controller = controllerClass.newInstance();
             //result = controller.__main__(rc);
 
             Class<?> controllerClass = route.getControllerClass();
             Object controller = controllerClass.newInstance();
 
-            if (route.getBeforeMethod() != null) {
-                route.getBeforeMethod().invoke(controller, rc);
+            Method before = route.getBeforeMethod();
+            if (before != null) {
+                before.setAccessible(true); // 禁用访问安全检查, 提高Java反射速度
+                before.invoke(controller, rc);
             }
 
-            Object resultObject = route.getActionMethod().invoke(controller, rc);
-            Class<?> resultClass = route.getActionMethod().getReturnType();
+            Method method = route.getActionMethod();
+            method.setAccessible(true); // 禁用访问安全检查, 提高Java反射速度
+            Object resultObject = method.invoke(controller, rc);
+            Class<?> resultClass = method.getReturnType();
             result = Result.of(resultObject, resultClass);
 
-            if (route.getAfterMethod() != null) {
-                route.getAfterMethod().invoke(controller, rc);
+            Method after = route.getAfterMethod();
+            if (after != null) {
+                after.setAccessible(true); // 禁用访问安全检查, 提高Java反射速度
+                after.invoke(controller, rc);
             }
         }
     }
