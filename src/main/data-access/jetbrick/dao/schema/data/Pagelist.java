@@ -42,7 +42,7 @@ public class Pagelist implements JSONAware {
 		}
 
 		try {
-			return Integer.parseInt(value);
+			return Integer.valueOf(value);
 		} catch (Exception e) {
 			return defaultValue;
 		}
