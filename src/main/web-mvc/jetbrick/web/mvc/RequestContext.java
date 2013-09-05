@@ -10,7 +10,7 @@ import jetbrick.web.utils.RequestIntrospectUtils;
 import org.apache.commons.collections.EnumerationUtils;
 
 public class RequestContext {
-    private final static ThreadLocal<RequestContext> requestContextHolder = new ThreadLocal<RequestContext>();
+    private final static ThreadLocal<RequestContext> threadlocalContext = new ThreadLocal<RequestContext>();
     private final WebappConfig config;
     private final HttpServletResponse response;
     private final HttpServletRequest request;
@@ -23,17 +23,17 @@ public class RequestContext {
         this.response = response;
         this.routeInfo = routeInfo;
 
-        requestContextHolder.set(this);
+        threadlocalContext.set(this);
     }
 
     protected void destory() {
         attributes.clear();
-        requestContextHolder.remove();
+        threadlocalContext.remove();
     }
 
     //--- thread context -------------------------------------------------
-    public static RequestContext get() {
-        return requestContextHolder.get();
+    public static RequestContext getCurrent() {
+        return threadlocalContext.get();
     }
 
     //----- servlet ------------------------------------------
@@ -130,7 +130,7 @@ public class RequestContext {
         if (request instanceof FileUploaderRequest) {
             return ((FileUploaderRequest) request).getFiles().values();
         }
-        return Collections.emptyList();
+        return Collections.<FileItem> emptyList();
     }
 
     public FileItem getUniqueFile() {
