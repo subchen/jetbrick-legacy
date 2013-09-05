@@ -86,14 +86,21 @@ public class SystemException extends RuntimeException {
         return this;
     }
 
-    @Override
-    public String getMessage() {
-        StringBuilder sb = new StringBuilder();
+    public String getSimpleMessage() {
         String message = super.getMessage();
         if (message != null) {
             if (args != null && args.length > 0) {
                 message = String.format(message, args);
             }
+        }
+        return message;
+    }
+    
+    @Override
+    public String getMessage() {
+        StringBuilder sb = new StringBuilder();
+        String message = getSimpleMessage();
+        if (message != null) {
             sb.append(message);
         }
         if (errorCode != null) {
