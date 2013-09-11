@@ -1,13 +1,11 @@
 package jetbrick.dao.schema.upgrade;
 
 import jetbrick.dao.dialect.Dialect;
-import jetbrick.dao.schema.data.SchemaColumn;
-import jetbrick.dao.schema.data.SchemaInfo;
+import jetbrick.dao.schema.data.*;
 import jetbrick.dao.schema.upgrade.model.DbColumn;
-import jetbrick.dao.utils.DbUtils;
 
 public class SqlUtils {
-	private static final Dialect dialect = DbUtils.getDialect();
+	private static final Dialect dialect = EntityUtils.JDBC.getDialect();
 
 	public static String sql_column_add(SchemaColumn c, SchemaColumn afterPosition) {
 		String table_name = c.getSchema().getTableName();

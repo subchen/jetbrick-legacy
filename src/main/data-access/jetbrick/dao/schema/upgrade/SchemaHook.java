@@ -4,7 +4,7 @@ import jetbrick.dao.schema.data.*;
 
 public interface SchemaHook {
 
-	public void whenTableCreated(SchemaInfo<? extends PersistentData> table);
+	public void whenTableCreated(SchemaInfo<? extends Entity> table);
 
 	public void whenColumnCreated(SchemaColumn column);
 

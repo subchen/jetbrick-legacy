@@ -1,6 +1,6 @@
 package jetbrick.dao.schema.upgrade.model;
 
-import jetbrick.dao.schema.data.PersistentData;
+import jetbrick.dao.schema.data.Entity;
 import jetbrick.dao.schema.data.SchemaInfo;
 
 public class SchemaTable {
@@ -9,7 +9,7 @@ public class SchemaTable {
 	}
 
 	private Action action;
-	private SchemaInfo<? extends PersistentData> schema;
+	private SchemaInfo<? extends Entity> schema;
 	private SchemaChecksum checksum;
 
 	public Action getAction() {
@@ -20,11 +20,11 @@ public class SchemaTable {
 		this.action = action;
 	}
 
-	public SchemaInfo<? extends PersistentData> getSchema() {
+	public SchemaInfo<? extends Entity> getSchema() {
 		return schema;
 	}
 
-	public void setSchema(SchemaInfo<? extends PersistentData> schema) {
+	public void setSchema(SchemaInfo<? extends Entity> schema) {
 		this.schema = schema;
 	}
 

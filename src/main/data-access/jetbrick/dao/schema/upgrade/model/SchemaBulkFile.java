@@ -1,10 +1,10 @@
 package jetbrick.dao.schema.upgrade.model;
 
-import jetbrick.dao.schema.data.PersistentData;
+import jetbrick.dao.schema.data.Entity;
 
 public class SchemaBulkFile {
 	private String fileName;
-	private Class<? extends PersistentData> tableClass;
+	private Class<? extends Entity> tableClass;
 	private String checksum;
 	private SchemaChecksum info;
 
@@ -16,11 +16,11 @@ public class SchemaBulkFile {
 		this.fileName = fileName;
 	}
 
-	public Class<? extends PersistentData> getTableClass() {
+	public Class<? extends Entity> getTableClass() {
 		return tableClass;
 	}
 
-	public void setTableClass(Class<? extends PersistentData> tableClass) {
+	public void setTableClass(Class<? extends Entity> tableClass) {
 		this.tableClass = tableClass;
 	}
 

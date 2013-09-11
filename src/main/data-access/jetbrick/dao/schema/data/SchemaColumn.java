@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * 只读的数据库字段，由SchemaInfoImpl初始化
  */
 public class SchemaColumn {
-	protected SchemaInfo<? extends PersistentData> schema;
+	protected SchemaInfo<? extends Entity> schema;
 	protected String fieldName;
 	protected Class<?> fieldClass;
 
@@ -24,12 +24,12 @@ public class SchemaColumn {
 	protected String description;
 
 	protected boolean primaryKey;
-	protected SchemaInfo<? extends PersistentData> referenceSchema;
+	protected SchemaInfo<? extends Entity> referenceSchema;
 	protected boolean json;
 
 	protected List<Validator> validators = new ArrayList<Validator>();
 
-	public SchemaInfo<? extends PersistentData> getSchema() {
+	public SchemaInfo<? extends Entity> getSchema() {
 		return schema;
 	}
 
@@ -77,7 +77,7 @@ public class SchemaColumn {
 		return primaryKey;
 	}
 
-	public SchemaInfo<? extends PersistentData> getReferenceSchema() {
+	public SchemaInfo<? extends Entity> getReferenceSchema() {
 		return referenceSchema;
 	}
 

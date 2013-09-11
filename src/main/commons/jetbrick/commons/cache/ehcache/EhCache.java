@@ -138,7 +138,7 @@ public class EhCache implements Cache {
     }
 
     @Override
-    public void removeAll() {
+    public void clear() {
         lock.writeLock().lock();
         try {
             cache.removeAll();

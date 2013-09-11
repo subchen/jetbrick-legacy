@@ -41,7 +41,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
 	public void initialize() {
 		// 读取数据库中存在的 BULK数据文件
 		Map<String, SchemaChecksum> db_checksum_map = new HashMap<String, SchemaChecksum>();
-		List<SchemaChecksum> db_checksum_list = dao.getSome(SchemaChecksum.class, "type", "BULK");
+		List<SchemaChecksum> db_checksum_list = dao.loadSome(SchemaChecksum.class, "type", "BULK");
 		for (SchemaChecksum checksum : db_checksum_list) {
 			db_checksum_map.put(checksum.getName(), checksum);
 		}
@@ -53,7 +53,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
 			try {
 				SchemaBulkFile bulkFile = new SchemaBulkFile();
 				bulkFile.setFileName(node.attribute("file").asString());
-				bulkFile.setTableClass((Class<? extends PersistentData>) node.attribute("class").asClass());
+				bulkFile.setTableClass((Class<? extends Entity>) node.attribute("class").asClass());
 				bulkFile.setChecksum(node.attribute("checksum").asString());
 
 				SchemaChecksum checksum = db_checksum_map.get(bulkFile.getFileName());
@@ -122,7 +122,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
 	}
 
 	protected void doBulk(InputStream inputStream, SchemaBulkFile bulk) throws IOException {
-		SchemaInfo<? extends PersistentData> schema = PersistentUtils.getSchema(bulk.getTableClass());
+		SchemaInfo<? extends Entity> schema = EntityUtils.getSchema(bulk.getTableClass());
 
 		Reader reader = new InputStreamReader(inputStream, FILE_ENCODING);
 
@@ -150,7 +150,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
 		int failed = 0;
 		for (List<Object> data : datalist) {
 			try {
-				dao.update(sql, data.toArray());
+				dao.execute(sql, data.toArray());
 				inserted++;
 			} catch (DuplicateKeyException e) {
 				duplicated++;
@@ -162,7 +162,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
 		fileLog.println(">>>> Total: %d inserted, %d duplicated, %d failed.\n", inserted, duplicated, failed);
 	}
 
-	private CellProcessor[] getCsvProcessors(SchemaInfo<? extends PersistentData> schema) {
+	private CellProcessor[] getCsvProcessors(SchemaInfo<? extends Entity> schema) {
 		List<CellProcessor> plist = new ArrayList<CellProcessor>();
 		for (SchemaColumn c : schema.getColumns()) {
 			CellProcessor p = null;

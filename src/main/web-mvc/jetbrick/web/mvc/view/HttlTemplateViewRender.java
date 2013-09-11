@@ -61,7 +61,7 @@ public class HttlTemplateViewRender extends AbstractViewRender {
         config.setProperty("value.filters", "");
         config.setProperty("text.filters", "");
         config.setProperty("json.codec", "httl.spi.codecs.FastjsonCodec");
-        config.setProperty("remove.directive.blank.line", "false");
+        config.setProperty("remove.directive.blank.line", "true");
 
         config.setProperty("output.stream", "true");
         config.setProperty("output.writer", "false");

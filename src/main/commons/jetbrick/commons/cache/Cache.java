@@ -18,7 +18,7 @@ public interface Cache {
 
     public void remove(Object key);
 
-    public void removeAll();
+    public void clear();
 
     public List<Object> getKeys();
 

@@ -35,7 +35,7 @@ public class SchemaEnumUpgradeTask extends UpgradeTask {
 
 		// 读取数据库中存在的 Enum checksum
 		Map<String, SchemaChecksum> db_checksum_map = ListOrderedMap.decorate(new CaseInsensitiveMap());
-		List<SchemaChecksum> db_checksum_list = dao.getSome(SchemaChecksum.class, "type", "ENUM");
+		List<SchemaChecksum> db_checksum_list = dao.loadSome(SchemaChecksum.class, "type", "ENUM");
 		for (SchemaChecksum checksum : db_checksum_list) {
 			db_checksum_map.put(checksum.getName(), checksum);
 		}
@@ -98,7 +98,7 @@ public class SchemaEnumUpgradeTask extends UpgradeTask {
 		List<SchemaEnum> new_queue = new ArrayList<SchemaEnum>();
 		List<SchemaEnum> update_queue = new ArrayList<SchemaEnum>();
 
-		Map<Integer, SchemaEnum> db_enum_map = PersistentUtils.map(dao.getAll(SchemaEnum.class));
+		Map<Integer, SchemaEnum> db_enum_map = EntityUtils.map(dao.loadAll(SchemaEnum.class));
 
 		for (SchemaEnum xml_en : enumQueue) {
 			SchemaEnum db_en = db_enum_map.get(xml_en.getId());
@@ -116,10 +116,10 @@ public class SchemaEnumUpgradeTask extends UpgradeTask {
 		}
 
 		if (new_queue.size() > 0) {
-			dao.batchSave(new_queue);
+			dao.saveBatch(new_queue);
 		}
 		if (update_queue.size() > 0) {
-			dao.batchUpdate(update_queue);
+			dao.updateBatch(update_queue);
 		}
 
 		// update checksum

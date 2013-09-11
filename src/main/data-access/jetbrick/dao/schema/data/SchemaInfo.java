@@ -2,7 +2,6 @@ package jetbrick.dao.schema.data;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -10,9 +9,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 /**
  * 提供只读的数据库Table对象， 要初始化SchemaInfo，请使用 SchemaInfoImpl
  */
-public abstract class SchemaInfo<T extends PersistentData> {
+public abstract class SchemaInfo<T extends Entity> {
     @SuppressWarnings("unchecked")
-    protected final Map<String, SchemaColumn> columns = ListOrderedMap.decorate(new CaseInsensitiveMap());
+    protected final Map<String, SchemaColumn> columns = new ListOrderedMap();
 
     protected String tableName;
     protected Class<T> tableClass;
@@ -27,8 +26,8 @@ public abstract class SchemaInfo<T extends PersistentData> {
     protected int cacheMaxLiveSeconds;
     protected int cacheMaxIdleSeconds;
 
-    public SchemaColumn getColumn(String columnName) {
-        return columns.get(columnName);
+    public SchemaColumn getColumn(String fieldName) {
+        return columns.get(fieldName);
     }
 
     public List<SchemaColumn> getColumns() {
@@ -79,5 +78,4 @@ public abstract class SchemaInfo<T extends PersistentData> {
     public String toString() {
         return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
-
 }
