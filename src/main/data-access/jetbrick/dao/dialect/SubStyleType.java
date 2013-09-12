@@ -13,7 +13,7 @@ import java.util.Map;
 public class SubStyleType {
 	protected static final Map<String, Class<?>> javaClassMapping = getJavaClassMapping();
 
-	public static final String ID = "id"; // integer
+	public static final String UID = "uid"; // integer
 	public static final String UUID = "uuid"; // char(16)
 	public static final String ENUM = "enum"; // int
 	public static final String CHAR = "char";
@@ -45,7 +45,7 @@ public class SubStyleType {
 
 	private static Map<String, Class<?>> getJavaClassMapping() {
 		Map<String, Class<?>> map = new HashMap<String, Class<?>>();
-		map.put(ID, Integer.class);
+		map.put(UID, Integer.class);
 		map.put(UUID, String.class);
 		map.put(ENUM, Integer.class);
 		map.put(CHAR, String.class);

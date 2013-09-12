@@ -45,6 +45,15 @@ public class H2Dialect extends Dialect {
     }
 
     @Override
+    public String sql_pagelist(String sql, int offset, int limit) {
+        sql = sql + " limit " + limit;
+        if (offset > 0) {
+            sql = sql + " offset " + offset;
+        }
+        return sql;
+    }
+
+    @Override
     public boolean supportsColumnPosition() {
         return true;
     }
