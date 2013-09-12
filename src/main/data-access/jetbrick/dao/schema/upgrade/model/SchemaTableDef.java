@@ -3,7 +3,7 @@ package jetbrick.dao.schema.upgrade.model;
 import jetbrick.dao.schema.data.Entity;
 import jetbrick.dao.schema.data.SchemaInfo;
 
-public class SchemaTable {
+public class SchemaTableDef {
 	public enum Action {
 		CREATE, UPDATE, DELETE
 	}

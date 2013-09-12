@@ -5,10 +5,10 @@ import jetbrick.dao.dialect.Dialect;
 import jetbrick.dao.orm.*;
 
 public abstract class SqlDaoHelper {
-    protected final JdbcTemplate jdbc;
+    protected final JdbcHelper jdbc;
     protected final Dialect dialect;
 
-    protected SqlDaoHelper(JdbcTemplate jdbc) {
+    protected SqlDaoHelper(JdbcHelper jdbc) {
         this.jdbc = jdbc;
         this.dialect = jdbc.getDialect();
     }

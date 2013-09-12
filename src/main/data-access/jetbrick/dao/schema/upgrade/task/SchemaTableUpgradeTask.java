@@ -8,7 +8,7 @@ import jetbrick.dao.orm.ConnectionCallback;
 import jetbrick.dao.schema.data.*;
 import jetbrick.dao.schema.upgrade.*;
 import jetbrick.dao.schema.upgrade.model.*;
-import jetbrick.dao.schema.upgrade.model.SchemaTable.Action;
+import jetbrick.dao.schema.upgrade.model.SchemaTableDef.Action;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +24,7 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
     private SchemaHook hook;
 
     // 需要修改的schema任务队列
-    private List<SchemaTable> tableQueue = new ArrayList<SchemaTable>();
+    private List<SchemaTableDef> tableQueue = new ArrayList<SchemaTableDef>();
     private int sumAdded = 0;
     private int sumModified = 0;
     private int sumDeleted = 0;
@@ -41,7 +41,7 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
 
         // 读取数据库中存在的Schema
         Map<String, SchemaChecksum> db_checksum_map = ListOrderedMap.decorate(new CaseInsensitiveMap());
-        List<SchemaChecksum> db_checksum_list = dao.loadSome(SchemaChecksum.class, "type", "TABLE");
+        List<SchemaChecksum> db_checksum_list = SchemaChecksum.DAO.loadSome("type", "TABLE");
         for (SchemaChecksum checksum : db_checksum_list) {
             db_checksum_map.put(checksum.getName(), checksum);
         }
@@ -63,7 +63,7 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
                 checksum.setChecksum(schema.getChecksum());
                 checksum.setTimestamp(new Date());
 
-                SchemaTable def = new SchemaTable();
+                SchemaTableDef def = new SchemaTableDef();
                 def.setAction(Action.CREATE);
                 def.setChecksum(checksum);
                 def.setSchema(schema);
@@ -73,7 +73,7 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
                 checksum.setChecksum(schema.getChecksum());
                 checksum.setTimestamp(new Date());
 
-                SchemaTable def = new SchemaTable();
+                SchemaTableDef def = new SchemaTableDef();
                 def.setAction(Action.UPDATE);
                 def.setChecksum(checksum);
                 def.setSchema(schema);
@@ -84,7 +84,7 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
         // deleted
         for (SchemaChecksum checksum : db_checksum_list) {
             if (!xml_schema_map.containsKey(checksum.getName())) {
-                SchemaTable def = new SchemaTable();
+                SchemaTableDef def = new SchemaTableDef();
                 def.setAction(Action.DELETE);
                 def.setChecksum(checksum);
                 def.setSchema(null);
@@ -117,7 +117,7 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
         fileLog.println(">>>> date = %s", DateUtils.getNowStr());
         fileLog.println("");
 
-        for (SchemaTable def : tableQueue) {
+        for (SchemaTableDef def : tableQueue) {
             String tableName = def.getChecksum().getName();
             if (def.getAction() == Action.CREATE) {
                 if (dao.tableExist(tableName)) {
@@ -127,7 +127,7 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
                     tableCreate(def.getSchema());
                 }
                 // add table checksum
-                dao.save(def.getChecksum());
+                def.getChecksum().save();
             } else if (def.getAction() == Action.UPDATE) {
                 if (dao.tableExist(tableName)) {
                     log.warn(String.format("Table %s does not exist, will be created.", tableName));
@@ -136,11 +136,11 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
                     tableCreate(def.getSchema());
                 }
                 // update table checksum
-                dao.update(def.getChecksum());
+                def.getChecksum().update();
             } else if (def.getAction() == Action.DELETE) {
                 tableDelete(def.getChecksum());
                 // remove table checksum
-                dao.delete(def.getChecksum());
+                def.getChecksum().delete();
             }
         }
 
@@ -150,7 +150,7 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
     }
 
     private void tableCreate(SchemaInfo<?> schema) {
-        dao.tableCreate(schema);
+        EntityUtils.getEntityDaoHelper(schema.getTableClass()).tableCreate();
         sumAdded++;
 
         fileLog.println("Table created: " + schema.getTableName());
@@ -159,7 +159,8 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
     }
 
     private void tableDelete(SchemaChecksum table) {
-        dao.tableDelete(table.getName());
+        String sql = dialect.sql_table_drop(table.getName());
+        executeJdbcWithFileLog(sql);
         sumDeleted++;
 
         fileLog.println("Table deleted: " + table.getName());
@@ -259,9 +260,8 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
     }
 
     private void ensureCreate() {
-        SchemaInfo<SchemaChecksum> schema = SchemaChecksum.SCHEMA;
-        if (!dao.tableExist(schema.getTableName())) {
-            dao.tableCreate(schema);
+        if (!SchemaChecksum.DAO.tableExist()) {
+            SchemaChecksum.DAO.tableCreate();
         }
     }
 }

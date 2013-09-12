@@ -16,13 +16,13 @@ import jetbrick.dao.schema.data.Pagelist;
 /**
  * 数据库操作。单例使用
  */
-public class JdbcTemplate {
+public class JdbcHelper {
     // 当前线程(事务)
     private final ThreadLocal<JdbcTransaction> transationHandler = new ThreadLocal<JdbcTransaction>();
     private final DataSource dataSource;
     private final Dialect dialect;
 
-    public JdbcTemplate(DataSource dataSource) {
+    public JdbcHelper(DataSource dataSource) {
         this.dataSource = dataSource;
         this.dialect = doGetDialet();
     }
@@ -152,8 +152,12 @@ public class JdbcTemplate {
 
         List<?> items = Collections.emptyList();
         if (pagelist.getCount() > 0) {
+            String page_sql = dialect.sql_pagelist(sql, pagelist.getFirstResult(), pagelist.getPageSize());
             PagelistHandler<T> rsh = new PagelistHandler<T>(rowMapper);
-            rsh.setFirstResult(pagelist.getFirstResult());
+            if (page_sql == null) {
+                // 如果不支持分页，那么使用原始的分页方法 ResultSet.absolute(first)
+                rsh.setFirstResult(pagelist.getFirstResult());
+            }
             rsh.setMaxResults(pagelist.getPageSize());
             items = query(rsh, sql, parameters);
         }

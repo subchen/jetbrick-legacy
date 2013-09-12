@@ -1,12 +1,12 @@
 package jetbrick.dao.schema.upgrade.task;
 
 import jetbrick.dao.dialect.Dialect;
-import jetbrick.dao.schema.data.EntityDaoHelper;
-import jetbrick.dao.schema.data.EntityUtils;
+import jetbrick.dao.orm.JdbcHelper;
+import jetbrick.dao.schema.data.*;
 import jetbrick.dao.schema.upgrade.UpgradeLogger;
 
 public abstract class UpgradeTask {
-    protected final EntityDaoHelper dao = EntityUtils.DAO_HELPER;
+    protected final JdbcHelper dao = Entity.JDBC;
     protected final Dialect dialect = dao.getDialect();
     protected final UpgradeLogger fileLog;
 

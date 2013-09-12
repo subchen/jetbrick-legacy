@@ -6,7 +6,6 @@ import java.util.*;
 import jetbrick.commons.exception.SystemException;
 import jetbrick.commons.xml.XmlNode;
 import jetbrick.dao.id.*;
-import jetbrick.dao.orm.JdbcTemplate;
 import jetbrick.dao.orm.RowMapper;
 import jetbrick.dao.utils.DataSourceUtils;
 import org.apache.commons.collections.map.ListOrderedMap;
@@ -16,12 +15,8 @@ public class EntityUtils {
     private static final ListOrderedMap schema_map = new ListOrderedMap();
     private static final Map<Class<?>, EntityCache<?>> cache_map = new HashMap();
     private static final Map<Class<?>, RowMapper<?>> row_mapper_map = new HashMap();
-    private static final Map<Class<?>, EntityDaoHelper> dao_helper_map = new HashMap();
-    private static final SequenceIdProvider id_provider = new JdbcSequenceIdProvider(DataSourceUtils.getDataSource());
-
-    public static final JdbcTemplate JDBC = new JdbcTemplate(DataSourceUtils.getDataSource());
-    public static final EntityDaoHelper DAO_HELPER = new EntityDaoHelper(JDBC);
-    public static final EntityDaoHelper CACHED_DAO_HELPER = new CachedEntityDaoHelper(JDBC);
+    private static final Map<Class<?>, EntityDaoHelper<?>> dao_helper_map = new HashMap();
+    private static final SequenceIdProvider seq_id_provider = new JdbcSequenceIdProvider(DataSourceUtils.getDataSource());
 
     static {
         try {
@@ -34,7 +29,7 @@ public class EntityUtils {
                     schema_map.put(entityClass, entityClass.getDeclaredField("SCHEMA").get(null));
                     cache_map.put(entityClass, (EntityCache<?>) entityClass.getDeclaredField("CACHE").get(null));
                     row_mapper_map.put(entityClass, (RowMapper<?>) entityClass.getDeclaredField("ROW_MAPPER").get(null));
-                    dao_helper_map.put(entityClass, (EntityDaoHelper) entityClass.getDeclaredField("DAO_HELPER").get(null));
+                    dao_helper_map.put(entityClass, (EntityDaoHelper<?>) entityClass.getDeclaredField("DAO").get(null));
                 } catch (Throwable e) {
                     throw SystemException.unchecked(e);
                 }
@@ -62,6 +57,7 @@ public class EntityUtils {
                 Field field = entityClass.getDeclaredField("SCHEMA");
                 field.setAccessible(true);
                 schema = (SchemaInfo<T>) field.get(null);
+                schema_map.put(entityClass, schema);
             } catch (Throwable e) {
                 throw SystemException.unchecked(e);
             }
@@ -77,6 +73,7 @@ public class EntityUtils {
                 Field field = entityClass.getDeclaredField("CACHE");
                 field.setAccessible(true);
                 cache = (EntityCache<T>) field.get(null);
+                cache_map.put(entityClass, cache);
             } catch (Throwable e) {
                 throw SystemException.unchecked(e);
             }
@@ -89,9 +86,10 @@ public class EntityUtils {
         if (dao == null) {
             // for SchemaChecksum, SchemaEnum ...
             try {
-                Field field = entityClass.getDeclaredField("DAO_HELPER");
+                Field field = entityClass.getDeclaredField("DAO");
                 field.setAccessible(true);
                 dao = (EntityDaoHelper) field.get(null);
+                dao_helper_map.put(entityClass, dao);
             } catch (Throwable e) {
                 throw SystemException.unchecked(e);
             }
@@ -107,6 +105,7 @@ public class EntityUtils {
                 Field field = entityClass.getDeclaredField("ROW_MAPPER");
                 field.setAccessible(true);
                 mapper = (RowMapper<T>) field.get(null);
+                row_mapper_map.put(entityClass, mapper);
             } catch (Throwable e) {
                 throw SystemException.unchecked(e);
             }
@@ -124,18 +123,17 @@ public class EntityUtils {
     }
 
     public static SequenceId createSequenceId(Class<? extends Entity> entityClass) {
-        return id_provider.create(getTableName(entityClass));
+        return seq_id_provider.create(getTableName(entityClass));
     }
 
-    public static <T extends Entity> Map<Integer, T> map(List<T> dataList) {
-        if (dataList == null || dataList.size() == 0) {
+    public static <T extends Entity> Map<Integer, T> map(List<T> entities) {
+        if (entities == null || entities.size() == 0) {
             return Collections.emptyMap();
         }
         Map<Integer, T> map = new HashMap<Integer, T>();
-        for (T data : dataList) {
-            map.put(data.getId(), data);
+        for (T entity : entities) {
+            map.put(entity.getId(), entity);
         }
         return map;
     }
-
 }

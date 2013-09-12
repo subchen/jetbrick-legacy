@@ -1,63 +1,65 @@
 package jetbrick.dao.schema.data;
 
-import java.util.*;
-import jetbrick.commons.exception.SystemException;
-import jetbrick.dao.orm.JdbcTemplate;
+import java.util.ArrayList;
+import java.util.List;
+import jetbrick.dao.dialect.Dialect;
+import jetbrick.dao.orm.JdbcHelper;
 import jetbrick.dao.orm.RowMapper;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-public class EntityDaoHelper extends SqlDaoHelper {
-    protected static final Map<Class<? extends Entity>, String> sql_cache_insert = new HashMap(50);
-    protected static final Map<Class<? extends Entity>, String> sql_cache_update = new HashMap(50);
-    protected static final Map<String, String> sql_cache_delete = new HashMap(50);
+public class EntityDaoHelper<T extends Entity> {
+    protected final JdbcHelper jdbc;
+    protected final Dialect dialect;
+    protected final Class<T> entityClass;
+    protected final SchemaInfo<T> schema;
+    protected final RowMapper<T> rowMapper;
+    protected final String tableNameIdentifier;
+    protected final String sql_insert;
+    protected final String sql_update;
+    protected final String sql_delete;
+    protected final String sql_select;
 
-    public EntityDaoHelper(JdbcTemplate jdbc) {
-        super(jdbc);
+    public EntityDaoHelper(JdbcHelper jdbc, Class<T> entityClass) {
+        this.jdbc = jdbc;
+        this.dialect = jdbc.getDialect();
+        this.entityClass = entityClass;
+        this.schema = EntityUtils.getSchema(entityClass);
+        this.rowMapper = EntityUtils.getEntityRowMapper(entityClass);
+        this.tableNameIdentifier = dialect.getIdentifier(schema.getTableName());
+        this.sql_insert = get_sql_insert();
+        this.sql_update = get_sql_update();
+        this.sql_delete = get_sql_delete();
+        this.sql_select = get_sql_select();
     }
-    
+
     // -------- table ---------------------------------
-    public boolean tableExist(String name) {
-        return jdbc.tableExist(name);
+    public boolean tableExist() {
+        return jdbc.tableExist(schema.getTableName());
     }
 
-    public int tableCreate(SchemaInfo<? extends Entity> schema) {
-        String sql = get_sql_table_create(schema);
+    public int tableCreate() {
+        String sql = get_sql_table_create();
         return jdbc.execute(sql);
     }
 
-    public int tableDelete(String tableName) {
-        String sql = sql_cache_delete.get(tableName);
-        if (sql == null) {
-            sql = get_sql_table_drop(tableName);
-            sql_cache_delete.put(tableName, sql);
-        }
+    public int tableDelete() {
+        String sql = "drop table " + tableNameIdentifier;
         return jdbc.execute(sql);
     }
 
     // -------- save/update/delete ---------------------------------
-    public int save(Entity entity) {
+    public int save(T entity) {
         entity.validate();
-        String sql = sql_cache_insert.get(entity.getClass());
-        if (sql == null) {
-            sql = get_sql_insert(entity.getSchema());
-            sql_cache_insert.put(entity.getClass(), sql);
-        }
         entity.generateId();
-        return jdbc.execute(sql, entity.dao_insert_parameters());
+        return jdbc.execute(sql_insert, entity.dao_insert_parameters());
     }
 
-    public int update(Entity entity) {
+    public int update(T entity) {
         entity.validate();
-        String sql = sql_cache_update.get(entity.getClass());
-        if (sql == null) {
-            sql = get_sql_update(entity.getSchema());
-            sql_cache_update.put(entity.getClass(), sql);
-        }
-        return jdbc.execute(sql, entity.dao_update_parameters());
+        return jdbc.execute(sql_update, entity.dao_update_parameters());
     }
 
-    public int saveOrUpdate(Entity entity) {
+    public int saveOrUpdate(T entity) {
         if (entity.getId() == null) {
             return save(entity);
         } else {
@@ -65,172 +67,131 @@ public class EntityDaoHelper extends SqlDaoHelper {
         }
     }
 
-    public int delete(Entity entity) {
-        String tableName = dialect.getIdentifier(entity.getSchema().getTableName());
-        String sql = "delete from " + tableName + " where id=?";
-        return jdbc.execute(sql, entity.getId());
+    public int delete(T entity) {
+        return delete(entity.getId());
     }
 
-    public int delete(Class<? extends Entity> entityClass, Integer id) {
-        String tableName = EntityUtils.getTableName(entityClass);
-        String sql = "delete from " + dialect.getIdentifier(tableName) + " where id=?";
-        return jdbc.execute(sql, id);
+    public int delete(Integer id) {
+        return jdbc.execute(sql_delete, id);
     }
 
     // -------- batch save/update/delete ---------------------------------
-    public int[] saveAll(Entity... datalist) {
-        if (datalist.length == 0) return ArrayUtils.EMPTY_INT_ARRAY;
+    public void saveAll(T... entities) {
+        if (entities.length == 0) return;
 
-        int[] results = new int[datalist.length];
-        for (int i = 0; i < datalist.length; i++) {
-            results[i] = save(datalist[i]);
+        List<Object[]> parameters = new ArrayList(entities.length);
+        for (T entity : entities) {
+            entity.generateId();
+            entity.validate();
+            parameters.add(entity.dao_insert_parameters());
         }
-        return results;
+
+        jdbc.executeBatch(sql_insert, parameters);
     }
 
-    public int[] updateAll(Entity... datalist) {
-        if (datalist.length == 0) return ArrayUtils.EMPTY_INT_ARRAY;
-
-        int[] results = new int[datalist.length];
-        for (int i = 0; i < datalist.length; i++) {
-            results[i] = update(datalist[i]);
-        }
-        return results;
+    public void saveAll(List<T> entities) {
+        saveAll((T[]) entities.toArray());
     }
 
-    public int[] saveOrUpdateAll(Entity... datalist) {
-        if (datalist.length == 0) return ArrayUtils.EMPTY_INT_ARRAY;
+    public void updateAll(T... entities) {
+        if (entities.length == 0) return;
 
-        int[] results = new int[datalist.length];
-        for (int i = 0; i < datalist.length; i++) {
-            results[i] = saveOrUpdate(datalist[i]);
+        List<Object[]> parameters = new ArrayList(entities.length);
+        for (T entity : entities) {
+            entity.validate();
+            parameters.add(entity.dao_update_parameters());
         }
-        return results;
+
+        jdbc.executeBatch(sql_update, parameters);
     }
 
-    public int[] deleteAll(Entity... datalist) {
-        if (datalist.length == 0) return ArrayUtils.EMPTY_INT_ARRAY;
-
-        int[] results = new int[datalist.length];
-        for (int i = 0; i < datalist.length; i++) {
-            results[i] = delete(datalist[i]);
-        }
-        return results;
+    public void updateAll(List<T> entities) {
+        updateAll((T[]) entities.toArray());
     }
 
-    /**
-     * 批量保存， 必须保证对象是相同的Class
-     */
-    public <T extends Entity> int[] saveBatch(List<T> dataList) {
-        if (dataList == null || dataList.size() == 0) {
-            return ArrayUtils.EMPTY_INT_ARRAY;
-        }
+    public void saveOrUpdateAll(T... entities) {
+        if (entities.length == 0) return;
 
-        Entity first = dataList.get(0);
-        String sql = sql_cache_insert.get(first.getClass());
-        if (sql == null) {
-            sql = get_sql_insert(first.getSchema());
-            sql_cache_insert.put(first.getClass(), sql);
-        }
-
-        List<Object[]> parameters = new ArrayList(dataList.size());
-        for (int i = 0; i < dataList.size(); i++) {
-            Entity data = dataList.get(i);
-            data.generateId();
-            data.validate();
-
-            if (data.getSchema() != first.getSchema()) {
-                throw new SystemException("dataList 存在不同的 Class， 无法进行 batchSave");
+        for (T entity : entities) {
+            if (entity.getId() == null) {
+                save(entity);
+            } else {
+                update(entity);
             }
-            parameters.add(data.dao_insert_parameters());
         }
-
-        return jdbc.executeBatch(sql, parameters);
     }
 
-    /**
-     * 批量更新， 必须保证对象是相同的Class
-     */
-    public <T extends Entity> int[] updateBatch(List<T> dataList) {
-        if (dataList == null || dataList.size() == 0) {
-            return ArrayUtils.EMPTY_INT_ARRAY;
-        }
-
-        Entity first = dataList.get(0);
-        String sql = sql_cache_update.get(first.getClass());
-        if (sql == null) {
-            sql = get_sql_update(first.getSchema());
-            sql_cache_update.put(first.getClass(), sql);
-        }
-
-        List<Object[]> parameters = new ArrayList(dataList.size());
-        for (int i = 0; i < dataList.size(); i++) {
-            Entity data = dataList.get(i);
-            data.validate();
-
-            if (data.getSchema() != first.getSchema()) {
-                throw new SystemException("dataList 存在不同的 Class， 无法进行 batchSave");
-            }
-            parameters.add(data.dao_update_parameters());
-        }
-
-        return jdbc.executeBatch(sql, parameters);
+    public void saveOrUpdateAll(List<T> entities) {
+        saveOrUpdateAll((T[]) entities.toArray());
     }
 
-    // -------- query ---------------------------------
-    public <T extends Entity> T load(Class<T> entityClass, Integer id) {
-        String tableName = EntityUtils.getTableName(entityClass);
-        String sql = "select * from " + dialect.getIdentifier(tableName) + " where id=?";
-        return queryAsObject(entityClass, sql, id);
-    }
+    public void deleteAll(T... entities) {
+        if (entities.length == 0) return;
 
-    public <T extends Entity> T load(Class<T> entityClass, String name, Object value) {
-        String tableName = EntityUtils.getTableName(entityClass);
-        String columnName = EntityUtils.getColumnName(entityClass, name);
-
-        String sql = "select * from " + dialect.getIdentifier(tableName) + " where " + dialect.getIdentifier(columnName) + "=?";
-        return queryAsObject(entityClass, sql, value);
-    }
-
-    public <T extends Entity> List<T> loadSome(Class<T> entityClass, String name, Object value, String... sorts) {
-        String tableName = EntityUtils.getTableName(entityClass);
-        String columnName = EntityUtils.getColumnName(entityClass, name);
-
-        String sql = "select * from " + dialect.getIdentifier(tableName) + " where " + dialect.getIdentifier(columnName) + "=?";
-        if (sorts != null && sorts.length > 0) {
-            sql = sql + " order by " + get_sql_sort_part(entityClass, sorts);
+        Integer[] ids = new Integer[entities.length];
+        for (int i = 0; i < entities.length; i++) {
+            ids[i] = entities[i].getId();
         }
-        return queryAsList(entityClass, sql, value);
+
+        deleteAll(ids);
     }
 
-    public <T extends Entity> List<T> loadSome(Class<T> entityClass, Integer... ids) {
-        String tableName = EntityUtils.getTableName(entityClass);
+    public void deleteAll(List<T> entities) {
+        deleteAll((T[]) entities.toArray());
+    }
+
+    public int deleteAll(Integer... ids) {
         String values = StringUtils.repeat("?", ",", ids.length);
-        String sql = "select * from " + dialect.getIdentifier(tableName) + " where id in (" + values + ")";
-        return queryAsList(entityClass, sql, (Object[]) ids);
+        String sql = "delete from " + tableNameIdentifier + " where id in (" + values + ")";
+        return jdbc.execute(sql, (Object[]) ids);
     }
 
-    public <T extends Entity> List<T> loadAll(Class<T> entityClass, String... sorts) {
-        String tableName = EntityUtils.getTableName(entityClass);
-        String sql = "select * from " + dialect.getIdentifier(tableName);
+    // -------- load/query ---------------------------------
+    public T load(Integer id) {
+        return jdbc.queryAsObject(rowMapper, sql_select, id);
+    }
+
+    public T load(String name, Object value) {
+        String sql = "select * from " + tableNameIdentifier + " where " + getColumnNameIdentifier(name) + "=?";
+        return queryAsObject(sql, value);
+    }
+
+    public List<T> loadSome(Integer... ids) {
+        String values = StringUtils.repeat("?", ",", ids.length);
+        String sql = "select * from " + tableNameIdentifier + " where id in (" + values + ")";
+        return jdbc.queryAsList(rowMapper, sql, (Object[]) ids);
+    }
+
+    public List<T> loadSome(String name, Object value, String... sorts) {
+        String sql = "select * from " + tableNameIdentifier + " where " + getColumnNameIdentifier(name) + "=?";
         if (sorts != null && sorts.length > 0) {
-            sql = sql + " order by " + get_sql_sort_part(entityClass, sorts);
+            sql = sql + " order by " + get_sql_sort_part(sorts);
         }
-        return queryAsList(entityClass, sql);
+        return queryAsList(sql, value);
     }
 
-    public <T extends Entity> T queryAsObject(Class<T> entityClass, String sql, Object... parameters) {
-        RowMapper<T> mapper = EntityUtils.getEntityRowMapper(entityClass);
-        return jdbc.queryAsObject(mapper, sql, parameters);
+    public List<T> loadAll(String... sorts) {
+        String sql = "select * from " + tableNameIdentifier;
+        if (sorts != null && sorts.length > 0) {
+            sql = sql + " order by " + get_sql_sort_part(sorts);
+        }
+        return queryAsList(sql);
     }
 
-    public <T extends Entity> List<T> queryAsList(Class<T> entityClass, String sql, Object... parameters) {
-        RowMapper<T> mapper = EntityUtils.getEntityRowMapper(entityClass);
-        return jdbc.queryAsList(mapper, sql, parameters);
+    public T queryAsObject(String sql, Object... parameters) {
+        return jdbc.queryAsObject(rowMapper, sql, parameters);
+    }
+
+    public List<T> queryAsList(String sql, Object... parameters) {
+        return jdbc.queryAsList(rowMapper, sql, parameters);
+    }
+
+    public Pagelist queryAsPageList(Pagelist pagelist, String sql, Object... parameters) {
+        return jdbc.queryAsPageList(pagelist, rowMapper, sql, parameters);
     }
 
     // ----- sql gen ---------------------------------------------
-    private String get_sql_insert(SchemaInfo<? extends Entity> schema) {
+    private String get_sql_insert() {
         List<String> names = new ArrayList<String>();
         for (SchemaColumn c : schema.getColumns()) {
             names.add(dialect.getIdentifier(c.getColumnName()));
@@ -238,14 +199,14 @@ public class EntityDaoHelper extends SqlDaoHelper {
         String sql = "insert into %s (%s) values (%s)";
         //@formatter:off
         return String.format(sql, 
-            dialect.getIdentifier(schema.getTableName()), 
+            tableNameIdentifier,
             StringUtils.join(names, ","), 
             StringUtils.repeat("?", ",", names.size())
         );
         //@formatter:on
     }
 
-    private String get_sql_update(SchemaInfo<? extends Entity> schema) {
+    private String get_sql_update() {
         List<String> names = new ArrayList<String>();
         for (SchemaColumn c : schema.getColumns()) {
             if (!c.isPrimaryKey()) {
@@ -253,14 +214,22 @@ public class EntityDaoHelper extends SqlDaoHelper {
             }
         }
         String sql = "update %s set %s where id=?";
-        return String.format(sql, dialect.getIdentifier(schema.getTableName()), StringUtils.join(names, ","));
+        return String.format(sql, tableNameIdentifier, StringUtils.join(names, ","));
     }
 
-    private String get_sql_table_create(SchemaInfo<? extends Entity> schema) {
+    private String get_sql_delete() {
+        return "delete from " + tableNameIdentifier + " where id=?";
+    }
+
+    private String get_sql_select() {
+        return "se3lect * from " + tableNameIdentifier + " where id=?";
+    }
+
+    private String get_sql_table_create() {
         StringBuilder sqls = new StringBuilder();
         List<String> pks = new ArrayList<String>(3);
 
-        sqls.append("create table " + dialect.getIdentifier(schema.getTableName()) + " (\n");
+        sqls.append("create table " + tableNameIdentifier + " (\n");
         for (SchemaColumn c : schema.getColumns()) {
             if (c.isPrimaryKey()) {
                 pks.add(dialect.getIdentifier(c.getColumnName()));
@@ -279,17 +248,23 @@ public class EntityDaoHelper extends SqlDaoHelper {
         return sqls.toString();
     }
 
-    private String get_sql_table_drop(String tableName) {
-        return "drop table " + dialect.getIdentifier(tableName);
-    }
-
-    private String get_sql_sort_part(Class<? extends Entity> entityClass, String... sorts) {
+    private String get_sql_sort_part(String... sorts) {
         for (int i = 0; i < sorts.length; i++) {
             String part[] = StringUtils.split(sorts[i], " ");
-            part[0] = EntityUtils.getColumnName(entityClass, part[0]);
+            part[0] = getColumnNameIdentifier(part[0]);
             sorts[i] = StringUtils.join(part, " ");
         }
         return StringUtils.join(sorts, ",");
     }
 
+    private String getColumnNameIdentifier(String name) {
+        if (name.indexOf("_") == -1) {
+            // maybe fieldName
+            SchemaColumn sc = schema.getColumn(name);
+            if (sc != null) {
+                name = sc.getColumnName();
+            }
+        }
+        return dialect.getIdentifier(name);
+    }
 }

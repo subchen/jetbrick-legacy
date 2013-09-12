@@ -5,7 +5,7 @@ import jetbrick.dao.schema.data.*;
 import jetbrick.dao.schema.upgrade.model.DbColumn;
 
 public class SqlUtils {
-	private static final Dialect dialect = EntityUtils.JDBC.getDialect();
+	private static final Dialect dialect = Entity.JDBC.getDialect();
 
 	public static String sql_column_add(SchemaColumn c, SchemaColumn afterPosition) {
 		String table_name = c.getSchema().getTableName();

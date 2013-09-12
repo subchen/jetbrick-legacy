@@ -1,7 +1,9 @@
 package jetbrick.dao.schema.data;
 
 import java.io.Serializable;
+import jetbrick.dao.orm.JdbcHelper;
 import jetbrick.dao.schema.validator.Validator;
+import jetbrick.dao.utils.DataSourceUtils;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 
@@ -26,28 +28,30 @@ public abstract class Entity implements Serializable, Cloneable, JSONAware {
     public abstract Integer generateId();
 
     //------ schema -----------------------------------------
-    public abstract SchemaInfo<? extends Entity> getSchema();
+    public abstract SchemaInfo<? extends Entity> schema();
 
     //------ cache -----------------------------------------
-    public abstract EntityCache<? extends Entity> getCache();
+    public abstract EntityCache<? extends Entity> cache();
 
     //------ dao ---------------------------------
-    public abstract EntityDaoHelper getEntityDaoHelper();
+    public static final JdbcHelper JDBC = new JdbcHelper(DataSourceUtils.getDataSource());
+
+    public abstract EntityDaoHelper dao();
 
     public int save() {
-        return getEntityDaoHelper().save(this);
+        return dao().save(this);
     }
 
     public int update() {
-        return getEntityDaoHelper().update(this);
+        return dao().update(this);
     }
 
     public int saveOrUpdate() {
-        return getEntityDaoHelper().saveOrUpdate(this);
+        return dao().saveOrUpdate(this);
     }
 
     public int delete() {
-        return getEntityDaoHelper().delete(this);
+        return dao().delete(this);
     }
 
     public abstract Object[] dao_insert_parameters();

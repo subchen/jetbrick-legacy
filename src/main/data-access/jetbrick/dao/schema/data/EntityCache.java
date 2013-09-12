@@ -29,6 +29,12 @@ public class EntityCache<T extends Entity> {
         id_cache.put(entity.getId(), entity);
     }
 
+    public void addEntities(T... entities) {
+        for (T entity : entities) {
+            id_cache.put(entity.getId(), entity);
+        }
+    }
+
     public void addEntities(List<T> entities) {
         for (T entity : entities) {
             id_cache.put(entity.getId(), entity);
