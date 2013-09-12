@@ -157,6 +157,10 @@ public class JdbcHelper {
             if (page_sql == null) {
                 // 如果不支持分页，那么使用原始的分页方法 ResultSet.absolute(first)
                 rsh.setFirstResult(pagelist.getFirstResult());
+            } else {
+                // 使用数据库自身的分页SQL语句，将直接返回某一个
+                rsh.setFirstResult(0);
+                sql = page_sql;
             }
             rsh.setMaxResults(pagelist.getPageSize());
             items = query(rsh, sql, parameters);
