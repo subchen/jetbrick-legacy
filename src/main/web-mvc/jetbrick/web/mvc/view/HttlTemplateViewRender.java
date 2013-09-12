@@ -10,7 +10,7 @@ import jetbrick.commons.exception.HttpError;
 import jetbrick.commons.exception.SystemException;
 import jetbrick.web.mvc.RequestContext;
 import jetbrick.web.mvc.config.WebappConfig;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class HttlTemplateViewRender extends AbstractViewRender {
     private final Engine engine;

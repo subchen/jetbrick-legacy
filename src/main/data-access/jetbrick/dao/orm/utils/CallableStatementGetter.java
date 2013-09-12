@@ -2,7 +2,7 @@ package jetbrick.dao.orm.utils;
 
 import java.sql.CallableStatement;
 import java.sql.SQLException;
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 
 public class CallableStatementGetter {
 

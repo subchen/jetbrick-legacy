@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jetbrick.commons.exception.SystemException;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 public class SimpleTemplate implements Template {
 	protected static final Pattern pattern = Pattern.compile("\\{([^\\}]+)\\}");

@@ -2,7 +2,7 @@ package jetbrick.web.mvc.view;
 
 import jetbrick.web.mvc.ViewRender;
 import jetbrick.web.mvc.config.WebappConfig;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public abstract class AbstractViewRender implements ViewRender {
     protected final String encoding;

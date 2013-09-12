@@ -2,7 +2,7 @@ package jetbrick.web.mvc.router;
 
 import javax.servlet.http.HttpServletRequest;
 import jetbrick.web.mvc.RouteInfo;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /** 

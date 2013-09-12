@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.text.*;
 import java.util.*;
 import jetbrick.commons.exception.SystemException;
-import org.apache.commons.lang.UnhandledException;
 
 public class DateUtils {
 
@@ -329,7 +328,6 @@ public class DateUtils {
      *            时间字符串
      * @param pattern
      *            see {@link java.text.SimpleDateFormat}
-     * @throws UnhandledException
      */
     public static Date parse(String datetime, String pattern) {
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);

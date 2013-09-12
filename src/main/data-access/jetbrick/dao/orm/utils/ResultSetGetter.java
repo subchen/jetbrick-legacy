@@ -2,7 +2,7 @@ package jetbrick.dao.orm.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 
 public class ResultSetGetter {
 
@@ -19,7 +19,7 @@ public class ResultSetGetter {
             return (T) rs.getObject(index);
         }
 
-        requiredType = ClassUtils.primitiveToWrapper(requiredType);
+        requiredType = (Class<T>) ClassUtils.primitiveToWrapper(requiredType);
 
         // Explicitly extract typed value, as far as possible.
         if (String.class.equals(requiredType)) {
