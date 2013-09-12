@@ -2,7 +2,7 @@ package jetbrick.dao.schema.data;
 
 import java.util.*;
 import jetbrick.dao.dialect.Dialect;
-import jetbrick.dao.oam.*;
+import jetbrick.dao.orm.*;
 
 public abstract class SqlDaoHelper {
     protected final JdbcTemplate jdbc;

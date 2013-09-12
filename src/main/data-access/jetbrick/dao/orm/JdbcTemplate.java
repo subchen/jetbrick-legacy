@@ -1,4 +1,4 @@
-package jetbrick.dao.oam;
+package jetbrick.dao.orm;
 
 import java.sql.*;
 import java.util.*;
@@ -8,9 +8,9 @@ import jetbrick.commons.exception.DbError;
 import jetbrick.commons.exception.SystemException;
 import jetbrick.commons.lang.AssertUtils;
 import jetbrick.dao.dialect.Dialect;
-import jetbrick.dao.oam.handler.*;
-import jetbrick.dao.oam.mapper.*;
-import jetbrick.dao.oam.utils.*;
+import jetbrick.dao.orm.handler.*;
+import jetbrick.dao.orm.mapper.*;
+import jetbrick.dao.orm.utils.*;
 import jetbrick.dao.schema.data.Pagelist;
 
 /**

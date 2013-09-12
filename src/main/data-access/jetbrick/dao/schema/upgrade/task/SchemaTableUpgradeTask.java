@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 import jetbrick.commons.lang.DateUtils;
-import jetbrick.dao.oam.ConnectionCallback;
+import jetbrick.dao.orm.ConnectionCallback;
 import jetbrick.dao.schema.data.*;
 import jetbrick.dao.schema.upgrade.*;
 import jetbrick.dao.schema.upgrade.model.*;

@@ -2,8 +2,8 @@ package jetbrick.dao.schema.data;
 
 import java.util.*;
 import jetbrick.commons.exception.SystemException;
-import jetbrick.dao.oam.JdbcTemplate;
-import jetbrick.dao.oam.RowMapper;
+import jetbrick.dao.orm.JdbcTemplate;
+import jetbrick.dao.orm.RowMapper;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 

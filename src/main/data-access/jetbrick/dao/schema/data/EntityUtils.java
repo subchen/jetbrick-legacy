@@ -6,8 +6,8 @@ import java.util.*;
 import jetbrick.commons.exception.SystemException;
 import jetbrick.commons.xml.XmlNode;
 import jetbrick.dao.id.*;
-import jetbrick.dao.oam.JdbcTemplate;
-import jetbrick.dao.oam.RowMapper;
+import jetbrick.dao.orm.JdbcTemplate;
+import jetbrick.dao.orm.RowMapper;
 import jetbrick.dao.utils.DataSourceUtils;
 import org.apache.commons.collections.map.ListOrderedMap;
 

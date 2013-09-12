@@ -1,6 +1,6 @@
 package jetbrick.web.mvc.intercept.spi;
 
-import jetbrick.dao.oam.JdbcTransaction;
+import jetbrick.dao.orm.JdbcTransaction;
 import jetbrick.dao.schema.data.EntityUtils;
 import jetbrick.web.mvc.RequestContext;
 import jetbrick.web.mvc.config.WebappConfig;

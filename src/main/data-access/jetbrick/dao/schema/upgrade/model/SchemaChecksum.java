@@ -1,6 +1,6 @@
 package jetbrick.dao.schema.upgrade.model;
 
-import jetbrick.dao.oam.*;
+import jetbrick.dao.orm.*;
 import jetbrick.dao.schema.data.*;
 import com.alibaba.fastjson.JSONObject;
 

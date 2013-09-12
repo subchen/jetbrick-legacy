@@ -1,4 +1,4 @@
-package jetbrick.dao.oam;
+package jetbrick.dao.orm;
 
 import java.sql.Connection;
 import java.sql.SQLException;

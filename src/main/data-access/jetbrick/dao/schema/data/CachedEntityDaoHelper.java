@@ -1,10 +1,10 @@
 package jetbrick.dao.schema.data;
 
 import java.util.*;
-import jetbrick.dao.oam.JdbcTemplate;
-import jetbrick.dao.oam.handler.PagelistHandler;
-import jetbrick.dao.oam.mapper.SingleColumnRowMapper;
-import jetbrick.dao.oam.utils.SqlUtils;
+import jetbrick.dao.orm.JdbcTemplate;
+import jetbrick.dao.orm.handler.PagelistHandler;
+import jetbrick.dao.orm.mapper.SingleColumnRowMapper;
+import jetbrick.dao.orm.utils.SqlUtils;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.commons.lang3.ArrayUtils;
 
