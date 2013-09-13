@@ -7,7 +7,7 @@ import jetbrick.commons.exception.SystemException;
 import jetbrick.commons.xml.XmlNode;
 import jetbrick.dao.id.*;
 import jetbrick.dao.orm.RowMapper;
-import jetbrick.dao.schema.data.orm.EntityDaoHelper;
+import jetbrick.dao.schema.data.orm.JdbcEntityDaoHelper;
 import jetbrick.dao.utils.DataSourceUtils;
 import org.apache.commons.collections.map.ListOrderedMap;
 
@@ -16,7 +16,7 @@ public class EntityUtils {
     private static final ListOrderedMap schema_map = new ListOrderedMap();
     private static final Map<Class<?>, EntityCache<?>> cache_map = new HashMap();
     private static final Map<Class<?>, RowMapper<?>> row_mapper_map = new HashMap();
-    private static final Map<Class<?>, EntityDaoHelper<?>> dao_helper_map = new HashMap();
+    private static final Map<Class<?>, JdbcEntityDaoHelper<?>> dao_helper_map = new HashMap();
     private static final SequenceIdProvider seq_id_provider = new JdbcSequenceIdProvider(DataSourceUtils.getDataSource());
 
     static {
@@ -30,7 +30,7 @@ public class EntityUtils {
                     schema_map.put(entityClass, entityClass.getDeclaredField("SCHEMA").get(null));
                     cache_map.put(entityClass, (EntityCache<?>) entityClass.getDeclaredField("CACHE").get(null));
                     row_mapper_map.put(entityClass, (RowMapper<?>) entityClass.getDeclaredField("ROW_MAPPER").get(null));
-                    dao_helper_map.put(entityClass, (EntityDaoHelper<?>) entityClass.getDeclaredField("DAO").get(null));
+                    dao_helper_map.put(entityClass, (JdbcEntityDaoHelper<?>) entityClass.getDeclaredField("DAO").get(null));
                 } catch (Throwable e) {
                     throw SystemException.unchecked(e);
                 }
@@ -82,14 +82,14 @@ public class EntityUtils {
         return cache;
     }
 
-    public static <T extends Entity> EntityDaoHelper getEntityDaoHelper(Class<T> entityClass) {
-        EntityDaoHelper dao = dao_helper_map.get(entityClass);
+    public static <T extends Entity> JdbcEntityDaoHelper getEntityDaoHelper(Class<T> entityClass) {
+        JdbcEntityDaoHelper dao = dao_helper_map.get(entityClass);
         if (dao == null) {
             // for SchemaChecksum, SchemaEnum ...
             try {
                 Field field = entityClass.getDeclaredField("DAO");
                 field.setAccessible(true);
-                dao = (EntityDaoHelper) field.get(null);
+                dao = (JdbcEntityDaoHelper) field.get(null);
                 dao_helper_map.put(entityClass, dao);
             } catch (Throwable e) {
                 throw SystemException.unchecked(e);

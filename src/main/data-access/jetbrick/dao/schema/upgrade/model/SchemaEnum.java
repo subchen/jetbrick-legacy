@@ -6,7 +6,7 @@ package jetbrick.dao.schema.upgrade.model;
 
 import jetbrick.dao.orm.RowMapper;
 import jetbrick.dao.schema.data.*;
-import jetbrick.dao.schema.data.orm.EntityDaoHelper;
+import jetbrick.dao.schema.data.orm.JdbcEntityDaoHelper;
 import com.alibaba.fastjson.JSONObject;
 
 // TABLE: 文件(schema_enum)
@@ -117,7 +117,7 @@ public class SchemaEnum extends Entity {
     }
 
     //------ dao -----------------------------------
-    public static final EntityDaoHelper<SchemaEnum> DAO = new EntityDaoHelper(JDBC, SchemaEnum.class);
+    public static final EntityDaoHelper<SchemaEnum> DAO = new JdbcEntityDaoHelper(JDBC, SchemaEnum.class);
     
     @Override
     public EntityDaoHelper<SchemaEnum> dao() {

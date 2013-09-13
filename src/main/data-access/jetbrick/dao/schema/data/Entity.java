@@ -2,7 +2,6 @@ package jetbrick.dao.schema.data;
 
 import java.io.Serializable;
 import jetbrick.dao.orm.JdbcHelper;
-import jetbrick.dao.schema.data.orm.EntityDaoHelper;
 import jetbrick.dao.schema.validator.Validator;
 import jetbrick.dao.utils.DataSourceUtils;
 import com.alibaba.fastjson.JSONAware;
