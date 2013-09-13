@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 import jetbrick.commons.bean.ClassConvertUtils;
+import jetbrick.commons.exception.DbError;
+import jetbrick.commons.exception.SystemException;
 import jetbrick.commons.lang.ObjectHolder;
 import jetbrick.dao.dialect.Dialect;
 import jetbrick.dao.orm.*;
@@ -20,15 +22,14 @@ import org.hibernate.*;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.hql.internal.classic.QueryTranslatorImpl;
 import org.hibernate.jdbc.Work;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class HibernateDaoHelper implements SimpleDaoHelper {
-    protected static final Logger log = LoggerFactory.getLogger(HibernateDaoHelper.class);
-    protected static final int LOAD_SOME_BATCH_SIZE = 200;
-    protected final SessionFactory sessionFactory;
-    protected final Dialect dialect;
+    private static final int LOAD_SOME_BATCH_SIZE = 100;
+
+    private final ThreadLocal<HibernateTransaction> transactionHandler = new ThreadLocal<HibernateTransaction>();
+    private final SessionFactory sessionFactory;
+    private final Dialect dialect;
 
     public HibernateDaoHelper(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
@@ -36,11 +37,11 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
     }
 
     protected Session getSession() {
-        try {
-            return sessionFactory.getCurrentSession();
-        } catch (Exception e) {
-            log.warn(e.getMessage());
-            return sessionFactory.openSession();
+        HibernateTransaction tx = transactionHandler.get();
+        if (tx == null) {
+            throw new SystemException("current transaction has not been started.", DbError.TRANSACTION_ERROR);
+        } else {
+            return tx.getSession();
         }
     }
 
@@ -48,8 +49,16 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
         getSession().flush();
     }
 
-    public Transaction transation() {
-        return null;
+    /**
+     * 启动一个事务
+     */
+    public HibernateTransaction transaction() {
+        if (transactionHandler.get() != null) {
+            throw new SystemException("current transaction has not been closed.", DbError.TRANSACTION_ERROR);
+        }
+        HibernateTransaction tx = new HibernateTransaction(sessionFactory.openSession(), transactionHandler);
+        transactionHandler.set(tx);
+        return tx;
     }
 
     // ----- dialect ---------------------------------------

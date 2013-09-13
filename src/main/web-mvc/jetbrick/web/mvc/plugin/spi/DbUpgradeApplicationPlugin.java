@@ -17,7 +17,10 @@ public class DbUpgradeApplicationPlugin implements Plugin {
         try {
             new DbUpgradeApplication().execute();
         } catch (Throwable e) {
-            log.error("DB Upgrade Exception, JVM exit!!!", e);
+            log.error("DB Upgrade Exception.", e);
+            log.error("***********************************");
+            log.error("**          JVM exit!!!          **");
+            log.error("***********************************");
             System.exit(1);
         }
     }

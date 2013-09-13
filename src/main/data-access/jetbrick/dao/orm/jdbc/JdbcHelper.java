@@ -35,9 +35,9 @@ public class JdbcHelper {
     /**
      * 启动一个事务
      */
-    public JdbcTransaction transation() {
+    public JdbcTransaction transaction() {
         if (transationHandler.get() != null) {
-            throw new SystemException("current transaction has not been close.", DbError.TRANSACTION_ERROR);
+            throw new SystemException("current transaction has not been closed.", DbError.TRANSACTION_ERROR);
         }
         try {
             JdbcTransaction tx = new JdbcTransaction(dataSource.getConnection(), transationHandler);

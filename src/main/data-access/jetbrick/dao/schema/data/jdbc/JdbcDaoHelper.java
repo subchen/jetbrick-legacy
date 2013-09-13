@@ -17,7 +17,7 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
     }
 
     public JdbcTransaction transation() {
-        return dao.transation();
+        return dao.transaction();
     }
 
     public JdbcHelper getJdbcHelper() {
