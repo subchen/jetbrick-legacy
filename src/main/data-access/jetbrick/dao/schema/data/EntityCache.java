@@ -1,5 +1,6 @@
 package jetbrick.dao.schema.data;
 
+import java.util.Collection;
 import java.util.List;
 import jetbrick.commons.cache.*;
 import jetbrick.commons.cache.ehcache.EhCacheProvider;
@@ -36,7 +37,7 @@ public class EntityCache<T extends Entity> {
         }
     }
 
-    public void addEntities(List<T> entities) {
+    public void addEntities(Collection<T> entities) {
         for (T entity : entities) {
             id_cache.put(entity.getId(), entity);
         }

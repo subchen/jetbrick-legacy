@@ -19,12 +19,13 @@ import org.slf4j.LoggerFactory;
 /**
  * 数据库表结构的自动升降级
  */
+@SuppressWarnings("unchecked")
 public class SchemaTableUpgradeTask extends UpgradeTask {
-    private static final Logger log = LoggerFactory.getLogger(SchemaTableUpgradeTask.class);
-    private SchemaHook hook;
+    private final Logger log = LoggerFactory.getLogger(SchemaTableUpgradeTask.class);
+    private final SchemaHook hook;
 
     // 需要修改的schema任务队列
-    private List<SchemaTableDef> tableQueue = new ArrayList<SchemaTableDef>();
+    private final List<SchemaTableDef> tableQueue = new ArrayList<SchemaTableDef>();
     private int sumAdded = 0;
     private int sumModified = 0;
     private int sumDeleted = 0;
@@ -35,7 +36,6 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void initialize() {
         ensureCreate();
 
@@ -160,7 +160,7 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
 
     private void tableDelete(SchemaChecksum table) {
         String sql = dialect.sql_table_drop(table.getName());
-        executeJdbcWithFileLog(sql);
+        executeSQLWithFileLog(sql);
         sumDeleted++;
 
         fileLog.println("Table deleted: " + table.getName());
@@ -180,20 +180,20 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
 
             if (dc == null) {
                 // add column
-                String sql = SqlUtils.sql_column_add(sc, lastColumn);
-                executeJdbcWithFileLog(sql);
+                String sql = UpgradeSqlUtils.sql_column_add(dialect, sc, lastColumn);
+                executeSQLWithFileLog(sql);
 
                 // set default value for new added column
                 if (sc.getDefaultValue() != null) {
-                    sql = SqlUtils.sql_update_default_value(sc);
-                    executeJdbcWithFileLog(sql, sc.getDefaultValue());
+                    sql = UpgradeSqlUtils.sql_update_default_value(dialect, sc);
+                    executeSQLWithFileLog(sql, sc.getDefaultValue());
                 }
                 if (hook != null) hook.whenColumnCreated(sc);
 
             } else {
                 if (isColumnChanged(sc, dc)) {
-                    String sql = SqlUtils.sql_column_modify(sc);
-                    executeJdbcWithFileLog(sql);
+                    String sql = UpgradeSqlUtils.sql_column_modify(dialect, sc);
+                    executeSQLWithFileLog(sql);
                 }
             }
             lastColumn = sc;
@@ -202,13 +202,12 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
         for (DbColumn dc : db_column_map.values()) {
             if (db_column_map.get(dc.getColumnName()) == null) {
                 // drop column
-                String sql = SqlUtils.sql_column_drop(schema, dc);
-                executeJdbcWithFileLog(sql);
+                String sql = UpgradeSqlUtils.sql_column_drop(dialect, schema, dc);
+                executeSQLWithFileLog(sql);
             }
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Map<String, DbColumn> getColumnsFromDatabase(final SchemaChecksum table) {
         final List<DbColumn> columnList = new ArrayList<DbColumn>();
         dao.execute(new ConnectionCallback() {

@@ -4,9 +4,10 @@
  */
 package jetbrick.dao.schema.upgrade.model;
 
-import jetbrick.dao.orm.RowMapper;
+import jetbrick.dao.orm.jdbc.RowMapper;
 import jetbrick.dao.schema.data.*;
-import jetbrick.dao.schema.data.orm.JdbcEntityDaoHelper;
+import jetbrick.dao.schema.data.jdbc.JdbcEntity;
+import jetbrick.dao.schema.data.jdbc.JdbcEntityDaoHelper;
 import com.alibaba.fastjson.JSONObject;
 
 // TABLE: 文件(schema_checksum)
@@ -117,7 +118,7 @@ public class SchemaChecksum extends Entity {
     }
 
     //------ dao -----------------------------------
-    public static final EntityDaoHelper<SchemaChecksum> DAO = new JdbcEntityDaoHelper(JDBC, SchemaChecksum.class);
+    public static final EntityDaoHelper<SchemaChecksum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAOHelper, SchemaChecksum.class);
 
     @Override
     public EntityDaoHelper<SchemaChecksum> dao() {

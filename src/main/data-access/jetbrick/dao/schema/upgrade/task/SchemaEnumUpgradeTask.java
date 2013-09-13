@@ -19,11 +19,11 @@ import org.slf4j.LoggerFactory;
  * 枚举变量的升降级
  */
 public class SchemaEnumUpgradeTask extends UpgradeTask {
-    private static final Logger log = LoggerFactory.getLogger(SchemaEnumUpgradeTask.class);
-    private static final String SCHEMA_ENUM_FILE = "/META-INF/schema-enum.xml";
+    private final Logger log = LoggerFactory.getLogger(SchemaEnumUpgradeTask.class);
+    private final String SCHEMA_ENUM_FILE = "/META-INF/schema-enum.xml";
 
-    private List<SchemaChecksum> enumGroupQueue = new ArrayList<SchemaChecksum>();
-    private List<SchemaEnum> enumQueue = new ArrayList<SchemaEnum>();
+    private final List<SchemaChecksum> enumGroupQueue = new ArrayList<SchemaChecksum>();
+    private final List<SchemaEnum> enumQueue = new ArrayList<SchemaEnum>();
 
     public SchemaEnumUpgradeTask(UpgradeLogger fileLog) {
         super(fileLog);

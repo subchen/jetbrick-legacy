@@ -7,8 +7,10 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 import jetbrick.commons.bean.ClassConvertUtils;
-import jetbrick.dao.orm.ConnectionCallback;
-import jetbrick.dao.schema.data.Pagelist;
+import jetbrick.commons.lang.ObjectHolder;
+import jetbrick.dao.dialect.Dialect;
+import jetbrick.dao.orm.*;
+import jetbrick.dao.schema.data.SimpleDaoHelper;
 import org.apache.commons.beanutils.*;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.collections.iterators.SingletonIterator;
@@ -22,13 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
-public class HibernateDaoHelper {
+public class HibernateDaoHelper implements SimpleDaoHelper {
     protected static final Logger log = LoggerFactory.getLogger(HibernateDaoHelper.class);
     protected static final int LOAD_SOME_BATCH_SIZE = 200;
     protected final SessionFactory sessionFactory;
+    protected final Dialect dialect;
 
     public HibernateDaoHelper(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
+        this.dialect = doGetDialect();
     }
 
     protected Session getSession() {
@@ -44,11 +48,36 @@ public class HibernateDaoHelper {
         getSession().flush();
     }
 
+    public Transaction transation() {
+        return null;
+    }
+
+    // ----- dialect ---------------------------------------
+    @Override
+    public Dialect getDialect() {
+        return dialect;
+    }
+
+    // ----- table ---------------------------------------
+    @Override
+    public boolean tableExist(final String tableName) {
+        final ObjectHolder<Boolean> result = new ObjectHolder<Boolean>();
+        execute(new ConnectionCallback() {
+            @Override
+            public void execute(Connection conn) throws SQLException {
+                result.put(JdbcUtils.doGetTableExist(conn, tableName));
+            }
+        });
+        return result.get();
+    }
+
     // ----- execute -----------------------------------------------------
+    @Override
     public int execute(String hql, Object... parameters) {
         return createQuery(getSession(), hql, parameters).executeUpdate();
     }
 
+    @Override
     public void execute(final ConnectionCallback callback) {
         getSession().doWork(new Work() {
             @Override
@@ -59,48 +88,20 @@ public class HibernateDaoHelper {
     }
 
     // ----- save/update/delete -----------------------------------------------------
-    public void save(Object... entities) {
-        Session session = getSession();
-        for (Object entity : entities) {
-            if (entity instanceof Collection) {
-                saveAll((Collection<?>) entity);
-            } else {
-                session.save(entity);
-            }
-        }
+    public Serializable save(Object entity) {
+        return getSession().save(entity);
     }
 
-    public void update(Object... entities) {
-        Session session = getSession();
-        for (Object entity : entities) {
-            if (entity instanceof Collection) {
-                updateAll((Collection<?>) entity);
-            } else {
-                session.update(entity);
-            }
-        }
+    public void update(Object entity) {
+        getSession().update(entity);
     }
 
-    public void saveOrUpdate(Object... entities) {
-        Session session = getSession();
-        for (Object entity : entities) {
-            if (entity instanceof Collection) {
-                saveOrUpdateAll((Collection<?>) entity);
-            } else {
-                session.saveOrUpdate(entity);
-            }
-        }
+    public void saveOrUpdate(Object entity) {
+        getSession().saveOrUpdate(entity);
     }
 
-    public void delete(Object... entities) {
-        Session session = getSession();
-        for (Object entity : entities) {
-            if (entity instanceof Collection) {
-                deleteAll((Collection<?>) entity);
-            } else {
-                session.delete(entity);
-            }
-        }
+    public void delete(Object entity) {
+        getSession().delete(entity);
     }
 
     public void delete(Class<?> clazz, Serializable id) {
@@ -113,6 +114,7 @@ public class HibernateDaoHelper {
         for (Object entity : entities) {
             session.save(entity);
         }
+        session.flush();
     }
 
     public void updateAll(Collection<?> entities) {
@@ -120,6 +122,7 @@ public class HibernateDaoHelper {
         for (Object entity : entities) {
             session.update(entity);
         }
+        session.flush();
     }
 
     public void saveOrUpdateAll(Collection<?> entities) {
@@ -127,6 +130,7 @@ public class HibernateDaoHelper {
         for (Object entity : entities) {
             session.saveOrUpdate(entity);
         }
+        session.flush();
     }
 
     public void deleteAll(Collection<?> entities) {
@@ -134,6 +138,7 @@ public class HibernateDaoHelper {
         for (Object entity : entities) {
             session.delete(entity);
         }
+        session.flush();
     }
 
     public int deleteAll(Class<?> clazz, String name, Object value) {
@@ -188,7 +193,7 @@ public class HibernateDaoHelper {
     }
 
     // load 固定大小的 内容 (从 offset开始最大载入limit数量)
-    protected <T> List<T> loadSome(Class<T> clazz, String name, Serializable[] ids, int offset, int limit) {
+    private <T> List<T> loadSome(Class<T> clazz, String name, Serializable[] ids, int offset, int limit) {
         Serializable[] some_ids = ids;
         if (offset > 0 || limit < ids.length) {
             int length = Math.min(limit, ids.length - offset);
@@ -210,22 +215,27 @@ public class HibernateDaoHelper {
         return createQuery(getSession(), hql, parameters).setMaxResults(1).uniqueResult();
     }
 
+    @Override
     public Integer queryAsInt(String hql, Object... parameters) {
         return queryAsObjectCast(Integer.class, hql, parameters);
     }
 
+    @Override
     public Long queryAsLong(String hql, Object... parameters) {
         return queryAsObjectCast(Long.class, hql, parameters);
     }
 
+    @Override
     public String queryAsString(String hql, Object... parameters) {
         return queryAsObjectCast(String.class, hql, parameters);
     }
 
+    @Override
     public Boolean queryAsBoolean(String hql, Object... parameters) {
         return queryAsObjectCast(Boolean.class, hql, parameters);
     }
 
+    @Override
     public Date queryAsDate(String hql, Object... parameters) {
         return queryAsObjectCast(Date.class, hql, parameters);
     }
@@ -235,6 +245,7 @@ public class HibernateDaoHelper {
         return (result == null) ? null : (T) ConvertUtils.convert(result, clazz);
     }
 
+    @Override
     public <T> T[] queryAsArray(Class<T> arrayComponentClass, String hql, Object... parameters) {
         List<Object[]> list = (List<Object[]>) queryAsList(hql, parameters);
         int size = list == null ? 0 : list.size();
@@ -279,7 +290,7 @@ public class HibernateDaoHelper {
         Session session = getSession();
 
         if (pagelist.getCount() < 0) {
-            String hql_count = get_hql_select_count(hql);
+            String hql_count = SqlUtils.get_sql_select_count(hql);
             Query query = createQuery(session, hql_count, parameters);
             int count = ((Number) query.uniqueResult()).intValue();
             pagelist.setCount(count);
@@ -375,26 +386,6 @@ public class HibernateDaoHelper {
         }
     }
 
-    private String get_hql_select_count(String hql) {
-        String count_hql = hql.replaceAll("\\s+", " ");
-        int pos = count_hql.toLowerCase().indexOf(" from ");
-        count_hql = count_hql.substring(pos);
-
-        pos = count_hql.toLowerCase().lastIndexOf(" order by ");
-        int lastpos = count_hql.toLowerCase().lastIndexOf(")");
-        if (pos != -1 && pos > lastpos) {
-            count_hql = count_hql.substring(0, pos);
-        }
-
-        String regex = "(left|right|inner) join( fetch)?\\w+(\\.\\w+)*";
-        Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-        count_hql = p.matcher(count_hql).replaceAll("");
-
-        count_hql = "select count(*) " + count_hql;
-        log.debug("get_hql_select_count = {}", count_hql);
-        return count_hql;
-    }
-
     private String get_hql_sort_part(String... sorts) {
         if (sorts == null || sorts.length == 0) {
             return "";
@@ -438,4 +429,16 @@ public class HibernateDaoHelper {
         String hql = "sql: select " + name + ".nextval from dual";
         return queryAsInt(hql).intValue();
     }
+
+    private Dialect doGetDialect() {
+        final ObjectHolder<Dialect> result = new ObjectHolder<Dialect>();
+        execute(new ConnectionCallback() {
+            @Override
+            public void execute(Connection conn) {
+                result.put(JdbcUtils.doGetDialet(conn));
+            }
+        });
+        return result.get();
+    }
+
 }

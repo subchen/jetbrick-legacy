@@ -1,6 +1,8 @@
 package jetbrick.dao.schema.data;
 
+import java.util.Collection;
 import java.util.List;
+import jetbrick.dao.orm.Pagelist;
 
 public interface EntityDaoHelper<T extends Entity> {
 
@@ -23,21 +25,13 @@ public interface EntityDaoHelper<T extends Entity> {
     public abstract int delete(Integer id);
 
     // -------- batch save/update/delete ---------------------------------
-    public abstract void saveAll(T... entities);
+    public abstract void saveAll(Collection<T> entities);
 
-    public abstract void saveAll(List<T> entities);
+    public abstract void updateAll(Collection<T> entities);
 
-    public abstract void updateAll(T... entities);
+    public abstract void saveOrUpdateAll(Collection<T> entities);
 
-    public abstract void updateAll(List<T> entities);
-
-    public abstract void saveOrUpdateAll(T... entities);
-
-    public abstract void saveOrUpdateAll(List<T> entities);
-
-    public abstract void deleteAll(T... entities);
-
-    public abstract void deleteAll(List<T> entities);
+    public abstract void deleteAll(Collection<T> entities);
 
     public abstract int deleteAll(Integer... ids);
 

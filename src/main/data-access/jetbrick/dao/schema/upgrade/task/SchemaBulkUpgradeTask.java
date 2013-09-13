@@ -26,11 +26,11 @@ import org.supercsv.prefs.CsvPreference.Builder;
  * 初始化数据的升降级
  */
 public class SchemaBulkUpgradeTask extends UpgradeTask {
-    private static final Logger log = LoggerFactory.getLogger(SchemaBulkUpgradeTask.class);
-    private static final String SCHEMA_BULK_FILE = "/META-INF/schema-bulk.xml";
-    private static final String FILE_ENCODING = "utf-8";
+    private final Logger log = LoggerFactory.getLogger(SchemaBulkUpgradeTask.class);
+    private final String SCHEMA_BULK_FILE = "/META-INF/schema-bulk.xml";
+    private final String FILE_ENCODING = "utf-8";
 
-    private List<SchemaBulkFile> bulkFileQueue = new ArrayList<SchemaBulkFile>();
+    private final List<SchemaBulkFile> bulkFileQueue = new ArrayList<SchemaBulkFile>();
 
     public SchemaBulkUpgradeTask(UpgradeLogger fileLog) {
         super(fileLog);
@@ -150,7 +150,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
         int failed = 0;
         for (List<Object> data : datalist) {
             try {
-                dao.execute(sql, data.toArray());
+                executeSQLWithFileLog(sql, data.toArray());
                 inserted++;
             } catch (DuplicateKeyException e) {
                 duplicated++;

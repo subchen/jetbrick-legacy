@@ -1,0 +1,227 @@
+package jetbrick.dao.schema.data.jdbc;
+
+import java.util.*;
+import jetbrick.dao.dialect.Dialect;
+import jetbrick.dao.orm.Pagelist;
+import jetbrick.dao.orm.jdbc.JdbcHelper;
+import jetbrick.dao.orm.jdbc.RowMapper;
+import jetbrick.dao.schema.data.*;
+import org.apache.commons.lang3.StringUtils;
+
+@SuppressWarnings("unchecked")
+public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T> {
+    protected final JdbcHelper dao;
+    protected final Dialect dialect;
+    protected final Class<T> entityClass;
+    protected final SchemaInfo<T> schema;
+    protected final RowMapper<T> rowMapper;
+    protected final String tableNameIdentifier;
+    protected final String sql_insert;
+    protected final String sql_update;
+    protected final String sql_delete;
+    protected final String sql_select;
+
+    public JdbcEntityDaoHelper(JdbcDaoHelper dao, Class<T> entityClass) {
+        this.dao = dao.getJdbcHelper();
+        this.dialect = dao.getDialect();
+        this.entityClass = entityClass;
+        this.schema = EntityUtils.getSchema(entityClass);
+        this.rowMapper = EntityUtils.getEntityRowMapper(entityClass);
+        this.tableNameIdentifier = dialect.getIdentifier(schema.getTableName());
+        this.sql_insert = EntitySqlUtils.get_sql_insert(schema, dialect);
+        this.sql_update = EntitySqlUtils.get_sql_update(schema, dialect);
+        this.sql_delete = EntitySqlUtils.get_sql_delete(schema, dialect);
+        this.sql_select = EntitySqlUtils.get_sql_select_object(schema, dialect);
+    }
+
+    // -------- table ---------------------------------
+    @Override
+    public boolean tableExist() {
+        return dao.tableExist(schema.getTableName());
+    }
+
+    @Override
+    public int tableCreate() {
+        String sql = EntitySqlUtils.get_sql_table_create(schema, dialect);
+        return dao.execute(sql);
+    }
+
+    @Override
+    public int tableDelete() {
+        String sql = "drop table " + tableNameIdentifier;
+        return dao.execute(sql);
+    }
+
+    // -------- save/update/delete ---------------------------------
+    @Override
+    public int save(T entity) {
+        entity.validate();
+        entity.generateId();
+        return dao.execute(sql_insert, entity.dao_insert_parameters());
+    }
+
+    @Override
+    public int update(T entity) {
+        entity.validate();
+        return dao.execute(sql_update, entity.dao_update_parameters());
+    }
+
+    @Override
+    public int saveOrUpdate(T entity) {
+        if (entity.getId() == null) {
+            return save(entity);
+        } else {
+            return update(entity);
+        }
+    }
+
+    @Override
+    public int delete(T entity) {
+        return delete(entity.getId());
+    }
+
+    @Override
+    public int delete(Integer id) {
+        return dao.execute(sql_delete, id);
+    }
+
+    // -------- batch save/update/delete ---------------------------------
+    @Override
+    public void saveAll(Collection<T> entities) {
+        if (entities == null || entities.size() == 0) return;
+
+        List<Object[]> parameters = new ArrayList<Object[]>(entities.size());
+        for (T entity : entities) {
+            entity.generateId();
+            entity.validate();
+            parameters.add(entity.dao_insert_parameters());
+        }
+        dao.executeBatch(sql_insert, parameters);
+    }
+
+    @Override
+    public void updateAll(Collection<T> entities) {
+        if (entities == null || entities.size() == 0) return;
+
+        List<Object[]> parameters = new ArrayList<Object[]>(entities.size());
+        for (T entity : entities) {
+            entity.validate();
+            parameters.add(entity.dao_update_parameters());
+        }
+        dao.executeBatch(sql_update, parameters);
+    }
+
+    @Override
+    public void saveOrUpdateAll(Collection<T> entities) {
+        if (entities == null || entities.size() == 0) return;
+
+        for (T entity : entities) {
+            if (entity.getId() == null) {
+                save(entity);
+            } else {
+                update(entity);
+            }
+        }
+    }
+
+    @Override
+    public void deleteAll(Collection<T> entities) {
+        if (entities == null || entities.size() == 0) return;
+
+        int i = 0;
+        Integer[] ids = new Integer[entities.size()];
+        for (T entity : entities) {
+            ids[i++] = entity.getId();
+        }
+
+        deleteAll(ids);
+    }
+
+    @Override
+    public int deleteAll(Integer... ids) {
+        if (ids == null || ids.length == 0) {
+            return 0;
+        }
+        String values = StringUtils.repeat("?", ",", ids.length);
+        String sql = "delete from " + tableNameIdentifier + " where id in (" + values + ")";
+        return dao.execute(sql, (Object[]) ids);
+    }
+
+    // -------- load ---------------------------------
+    @Override
+    public T load(Integer id) {
+        return dao.queryAsObject(rowMapper, sql_select, id);
+    }
+
+    @Override
+    public T load(String name, Object value) {
+        String sql = "select * from " + tableNameIdentifier + " where " + getColumnNameIdentifier(name) + "=?";
+        return queryAsObject(sql, value);
+    }
+
+    @Override
+    public List<T> loadSome(Integer... ids) {
+        if (ids == null || ids.length == 0) {
+            return Collections.<T> emptyList();
+        }
+        String values = StringUtils.repeat("?", ",", ids.length);
+        String sql = "select * from " + tableNameIdentifier + " where id in (" + values + ")";
+        return dao.queryAsList(rowMapper, sql, (Object[]) ids);
+    }
+
+    @Override
+    public List<T> loadSome(String name, Object value, String... sorts) {
+        //@formatter:off
+		String sql = "select * from " + tableNameIdentifier 
+				   + " where " + getColumnNameIdentifier(name) + "=?"
+				   + get_sql_sort_part(sorts);
+		//@formatter:on
+        return queryAsList(sql, value);
+    }
+
+    @Override
+    public List<T> loadAll(String... sorts) {
+        String sql = "select * from " + tableNameIdentifier + get_sql_sort_part(sorts);
+        return queryAsList(sql);
+    }
+
+    // -------- query ---------------------------------
+    @Override
+    public T queryAsObject(String sql, Object... parameters) {
+        return dao.queryAsObject(rowMapper, sql, parameters);
+    }
+
+    @Override
+    public List<T> queryAsList(String sql, Object... parameters) {
+        return dao.queryAsList(rowMapper, sql, parameters);
+    }
+
+    @Override
+    public Pagelist queryAsPagelist(Pagelist pagelist, String sql, Object... parameters) {
+        return dao.queryAsPagelist(pagelist, rowMapper, sql, parameters);
+    }
+
+    // ----- sql gen ---------------------------------------------
+    private String get_sql_sort_part(String... sorts) {
+        if (sorts == null || sorts.length == 0) {
+            return "";
+        }
+        for (int i = 0; i < sorts.length; i++) {
+            String part[] = StringUtils.split(sorts[i], " ");
+            part[0] = getColumnNameIdentifier(part[0]);
+            sorts[i] = StringUtils.join(part, " ");
+        }
+        return " order by " + StringUtils.join(sorts, ",");
+    }
+
+    private String getColumnNameIdentifier(String name) {
+        if (name.indexOf("_") == -1) {
+            // maybe fieldName
+            SchemaColumn sc = schema.getColumn(name);
+            if (sc != null) {
+                name = sc.getColumnName();
+            }
+        }
+        return dialect.getIdentifier(name);
+    }
+}
