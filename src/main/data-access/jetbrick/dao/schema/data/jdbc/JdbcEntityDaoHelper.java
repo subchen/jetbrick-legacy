@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 
 @SuppressWarnings("unchecked")
 public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T> {
+    private static final int LOAD_SOME_BATCH_SIZE = 100;
+
     protected final JdbcHelper dao;
     protected final Dialect dialect;
     protected final Class<T> entityClass;
@@ -159,14 +161,38 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
         return queryAsObject(sql, value);
     }
 
+    // 如果数量超过 LOAD_SOME_BATCH_SIZE， 分批进行 load
     @Override
     public List<T> loadSome(Integer... ids) {
         if (ids == null || ids.length == 0) {
             return Collections.<T> emptyList();
         }
+        if (ids.length <= LOAD_SOME_BATCH_SIZE) {
+            return loadSome(ids, 0, LOAD_SOME_BATCH_SIZE);
+        }
+
+        List<T> items = new ArrayList<T>(ids.length);
+        int offset = 0;
+        while (offset < ids.length) {
+            List<T> some = loadSome(ids, offset, LOAD_SOME_BATCH_SIZE);
+            items.addAll(some);
+            offset += LOAD_SOME_BATCH_SIZE;
+        }
+        return items;
+    }
+
+    // load 固定大小的 内容 (从 offset开始最大载入limit数量)
+    private List<T> loadSome(Integer[] ids, int offset, int limit) {
+        Integer[] some_ids = ids;
+        if (offset > 0 || limit < ids.length) {
+            int length = Math.min(limit, ids.length - offset);
+            some_ids = new Integer[length];
+            System.arraycopy(ids, offset, some_ids, 0, some_ids.length);
+        }
+
         String values = StringUtils.repeat("?", ",", ids.length);
         String sql = "select * from " + tableNameIdentifier + " where id in (" + values + ")";
-        return dao.queryAsList(rowMapper, sql, (Object[]) ids);
+        return dao.queryAsList(rowMapper, sql, (Object[]) some_ids);
     }
 
     @Override

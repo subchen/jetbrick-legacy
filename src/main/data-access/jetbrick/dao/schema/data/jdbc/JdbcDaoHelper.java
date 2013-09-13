@@ -82,8 +82,8 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
     }
 
     @Override
-    public <T> T[] queryAsArray(Class<T> arrayClass, String sql, Object... parameters) {
-        return dao.queryAsArray(arrayClass, sql, parameters);
+    public <T> T[] queryAsArray(Class<T> arrayComponentClass, String sql, Object... parameters) {
+        return dao.queryAsArray(arrayComponentClass, sql, parameters);
     }
 
 }

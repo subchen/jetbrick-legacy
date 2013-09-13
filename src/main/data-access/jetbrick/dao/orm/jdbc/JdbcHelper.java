@@ -124,9 +124,9 @@ public class JdbcHelper {
         return queryAsObject(Map.class, sql, parameters);
     }
 
-    public <T> T[] queryAsArray(Class<T> arrayClass, String sql, Object... parameters) {
+    public <T> T[] queryAsArray(Class<T> arrayComponentClass, String sql, Object... parameters) {
         try {
-            Class<T[]> clazz = (Class<T[]>) Class.forName("[" + arrayClass.getName());
+            Class<T[]> clazz = (Class<T[]>) Class.forName("[" + arrayComponentClass.getName());
             return queryAsObject(clazz, sql, parameters);
         } catch (ClassNotFoundException e) {
             throw SystemException.unchecked(e);
