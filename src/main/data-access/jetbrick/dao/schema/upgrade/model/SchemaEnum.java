@@ -6,6 +6,7 @@ package jetbrick.dao.schema.upgrade.model;
 
 import jetbrick.dao.orm.RowMapper;
 import jetbrick.dao.schema.data.*;
+import jetbrick.dao.schema.data.orm.EntityDaoHelper;
 import com.alibaba.fastjson.JSONObject;
 
 // TABLE: 文件(schema_enum)

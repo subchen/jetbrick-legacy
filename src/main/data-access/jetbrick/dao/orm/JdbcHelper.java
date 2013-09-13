@@ -133,14 +133,14 @@ public class JdbcHelper {
         }
     }
 
-    public <T> Pagelist queryAsPageList(Pagelist pagelist, Class<T> beanClass, String sql, Object... parameters) {
+    public <T> Pagelist queryAsPagelist(Pagelist pagelist, Class<T> beanClass, String sql, Object... parameters) {
         AssertUtils.notNull(beanClass, "beanClass is null.");
 
         RowMapper<T> rowMapper = getRowMapper(beanClass);
-        return queryAsPageList(pagelist, rowMapper, sql, parameters);
+        return queryAsPagelist(pagelist, rowMapper, sql, parameters);
     }
 
-    public <T> Pagelist queryAsPageList(Pagelist pagelist, RowMapper<T> rowMapper, String sql, Object... parameters) {
+    public <T> Pagelist queryAsPagelist(Pagelist pagelist, RowMapper<T> rowMapper, String sql, Object... parameters) {
         AssertUtils.notNull(pagelist, "pagelist is null.");
         AssertUtils.notNull(rowMapper, "rowMapper is null.");
 
@@ -243,11 +243,11 @@ public class JdbcHelper {
         return rows;
     }
 
-    public <T> T execute(ConnectionCallback<T> callback) {
+    public void execute(ConnectionCallback callback) {
         Connection conn = null;
         try {
             conn = getConnection();
-            return callback.doInConnection(conn);
+            callback.execute(conn);
         } catch (SQLException e) {
             throw SystemException.unchecked(e);
         } finally {

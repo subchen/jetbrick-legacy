@@ -3,8 +3,8 @@ package jetbrick.dao.orm;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface ConnectionCallback<T> {
+public interface ConnectionCallback {
 
-	public T doInConnection(Connection conn) throws SQLException;
+	public void execute(Connection conn) throws SQLException;
 	
 }

@@ -3,6 +3,7 @@ package jetbrick.dao.schema.data;
 import java.util.List;
 import jetbrick.commons.cache.*;
 import jetbrick.commons.cache.ehcache.EhCacheProvider;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class EntityCache<T extends Entity> {
     public static final EntityCache NO_CACHE = new EntityCache();
@@ -59,6 +60,18 @@ public class EntityCache<T extends Entity> {
 
     public void addEntityIds(Object key, Integer[] ids) {
         page_cache.put(key, ids);
+    }
+
+    public void addEntityIds(Object key, List<T> entities) {
+        Integer[] ids = ArrayUtils.EMPTY_INTEGER_OBJECT_ARRAY;
+        if (entities != null && entities.size() > 0) {
+            ids = new Integer[entities.size()];
+            for (int i = 0; i < ids.length; i++) {
+                ids[i] = entities.get(i).getId();
+            }
+        }
+        addEntities(entities);
+        addEntityIds(key, ids);
     }
 
     public void deleteEntityIds() {

@@ -210,10 +210,10 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
 
     @SuppressWarnings("unchecked")
     public Map<String, DbColumn> getColumnsFromDatabase(final SchemaChecksum table) {
-        final List<DbColumn> columnList = (List<DbColumn>) dao.execute(new ConnectionCallback() {
+        final List<DbColumn> columnList = new ArrayList<DbColumn>();
+        dao.execute(new ConnectionCallback() {
             @Override
-            public Object doInConnection(Connection conn) throws SQLException {
-                List<DbColumn> columns = new ArrayList<DbColumn>();
+            public void execute(Connection conn) throws SQLException {
                 DatabaseMetaData metaData = conn.getMetaData();
                 ResultSet rs = metaData.getColumns(null, null, table.getName().toUpperCase(), null);
                 while (rs.next()) {
@@ -228,9 +228,8 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
                     }
                     c.setNullable(rs.getBoolean("NULLABLE"));
                     c.setDefaultValue(rs.getObject("COLUMN_DEF"));
-                    columns.add(c);
+                    columnList.add(c);
                 }
-                return columns;
             }
         });
 

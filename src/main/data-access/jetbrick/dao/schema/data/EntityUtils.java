@@ -7,6 +7,7 @@ import jetbrick.commons.exception.SystemException;
 import jetbrick.commons.xml.XmlNode;
 import jetbrick.dao.id.*;
 import jetbrick.dao.orm.RowMapper;
+import jetbrick.dao.schema.data.orm.EntityDaoHelper;
 import jetbrick.dao.utils.DataSourceUtils;
 import org.apache.commons.collections.map.ListOrderedMap;
 
