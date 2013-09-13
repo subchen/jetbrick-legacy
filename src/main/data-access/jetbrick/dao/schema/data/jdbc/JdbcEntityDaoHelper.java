@@ -190,7 +190,7 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
             System.arraycopy(ids, offset, some_ids, 0, some_ids.length);
         }
 
-        String values = StringUtils.repeat("?", ",", ids.length);
+        String values = StringUtils.repeat("?", ",", some_ids.length);
         String sql = "select * from " + tableNameIdentifier + " where id in (" + values + ")";
         return dao.queryAsList(rowMapper, sql, (Object[]) some_ids);
     }
