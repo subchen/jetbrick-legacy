@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import jetbrick.dao.orm.Pagelist;
 
+/**
+ * 单表操作
+ */
 public interface EntityDaoHelper<T extends Entity> {
 
     // -------- table ---------------------------------

@@ -4,6 +4,9 @@ import java.util.Date;
 import jetbrick.dao.dialect.Dialect;
 import jetbrick.dao.orm.ConnectionCallback;
 
+/**
+ * 多表操作或者自定义SQL执行
+ */
 public interface SimpleDaoHelper {
 
     public abstract Dialect getDialect();

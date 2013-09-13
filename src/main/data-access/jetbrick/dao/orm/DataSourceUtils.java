@@ -6,6 +6,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 import jetbrick.commons.exception.SystemException;
 import jetbrick.commons.io.PropertiesFile;
+import jetbrick.dao.dialect.Dialect;
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,27 +16,41 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class DataSourceUtils {
     private static final Logger log = LoggerFactory.getLogger(DataSourceUtils.class);
-    private static final String JDBC_PROPERTIES_FILE = "/dao.properties";
-    private static final DataSource dataSource = createDataSource();
+    private static final String JDBC_PROPERTIES_FILE = "/jdbc.properties";
+    private static final DataSource dataSource = doGetDataSource();
+    private static final Dialect dialect = JdbcUtils.doGetDialect(dataSource);
 
-    private static DataSource createDataSource() {
+    public static DataSource getDataSource() {
+        return dataSource;
+    }
+
+    public static void closeDataSource() {
+        try {
+            dataSource.getClass().getMethod("close").invoke(dataSource);
+        } catch (NoSuchMethodException e) {
+        } catch (Exception e) {
+            log.error("Unabled to destroy DataSource!!! ", e);
+        }
+    }
+
+    private static DataSource doGetDataSource() {
         try {
             InputStream file = DataSourceUtils.class.getResourceAsStream(JDBC_PROPERTIES_FILE);
             if (file == null) {
-                throw new SystemException("dao.properties is not found in classpath.");
+                throw new SystemException("jdbc.properties is not found in classpath.");
             }
 
             PropertiesFile config = new PropertiesFile(file);
 
             Class<DataSource> dataSourceClass = (Class<DataSource>) config.asClass("dao.datasource");
             if (dataSourceClass == null) {
-                throw new SystemException("dao.datasource == null.");
+                throw new SystemException("jdbc.datasource == null.");
             }
             log.info("Using DataSource : " + dataSourceClass.getName());
 
             DataSource dataSource = dataSourceClass.newInstance();
 
-            Properties properties = config.sub("dao.").getProperties();
+            Properties properties = config.sub("jdbc.").getProperties();
             properties.remove("datasource");
 
             for (Entry<?, ?> entry : properties.entrySet()) {
@@ -56,16 +71,7 @@ public abstract class DataSourceUtils {
         }
     }
 
-    public static DataSource getDataSource() {
-        return dataSource;
-    }
-
-    public static void closeDataSource() {
-        try {
-            dataSource.getClass().getMethod("close").invoke(dataSource);
-        } catch (NoSuchMethodException e) {
-        } catch (Exception e) {
-            log.error("Unabled to destroy DataSource!!! ", e);
-        }
+    public static Dialect getDialect() {
+        return dialect;
     }
 }

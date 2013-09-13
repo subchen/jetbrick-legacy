@@ -435,7 +435,7 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
         execute(new ConnectionCallback() {
             @Override
             public void execute(Connection conn) {
-                result.put(JdbcUtils.doGetDialet(conn));
+                result.put(JdbcUtils.doGetDialect(conn));
             }
         });
         return result.get();

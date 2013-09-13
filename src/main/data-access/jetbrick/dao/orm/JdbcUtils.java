@@ -1,6 +1,7 @@
 package jetbrick.dao.orm;
 
 import java.sql.*;
+import javax.sql.DataSource;
 import jetbrick.commons.exception.SystemException;
 import jetbrick.dao.dialect.Dialect;
 
@@ -39,7 +40,19 @@ public final class JdbcUtils {
         }
     }
 
-    public static Dialect doGetDialet(Connection conn) {
+    public static Dialect doGetDialect(DataSource dataSource) {
+        Connection conn = null;
+        try {
+            conn = dataSource.getConnection();
+            return JdbcUtils.doGetDialect(conn);
+        } catch (SQLException e) {
+            throw SystemException.unchecked(e);
+        } finally {
+            JdbcUtils.closeQuietly(conn);
+        }
+    }
+
+    public static Dialect doGetDialect(Connection conn) {
         try {
             String name = conn.getMetaData().getDatabaseProductName();
             return Dialect.getDialect(name);
@@ -49,5 +62,4 @@ public final class JdbcUtils {
             JdbcUtils.closeQuietly(conn);
         }
     }
-
 }
