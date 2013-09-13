@@ -17,10 +17,10 @@ import com.alibaba.fastjson.JSONObject;
 public class SchemaEnum extends Entity {
 
     //------ field list ---------------------------------------
-    protected Integer pid;  // 分组ID(pid)
-    protected String name;  // 名称(name)
-    protected String defineName;  // 变量名(define_name)
-    protected String description;  // 描述(description)
+    protected Integer pid; // 分组ID(pid)
+    protected String name; // 名称(name)
+    protected String defineName; // 变量名(define_name)
+    protected String description; // 描述(description)
 
     //------ schema -------------------------------------------
     public static final SchemaInfo<SchemaEnum> SCHEMA;
@@ -38,7 +38,7 @@ public class SchemaEnum extends Entity {
     static {
         SchemaInfoImpl<SchemaEnum> schema = new SchemaInfoImpl<SchemaEnum>();
         SCHEMA = schema;
-        
+
         schema.setTableName("_schema_enum");
         schema.setTableClass(SchemaEnum.class);
         schema.setCacheSupport(false);
@@ -71,7 +71,7 @@ public class SchemaEnum extends Entity {
         }
         return id;
     }
-    
+
     //------ getter / setter ----------------------------------
     public Integer getPid() {
         return pid;
@@ -118,12 +118,12 @@ public class SchemaEnum extends Entity {
 
     //------ dao -----------------------------------
     public static final EntityDaoHelper<SchemaEnum> DAO = new JdbcEntityDaoHelper(JDBC, SchemaEnum.class);
-    
+
     @Override
     public EntityDaoHelper<SchemaEnum> dao() {
         return DAO;
     }
-    
+
     @Override
     public Object[] dao_insert_parameters() {
         return new Object[] { id, pid, name, defineName, description };
@@ -229,4 +229,3 @@ public class SchemaEnum extends Entity {
 
     //------ end ----------------------------------------------
 }
-

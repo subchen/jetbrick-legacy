@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface Template {
 
-	String render(String source, Map<String, Object> context);
+    String render(String source, Map<String, Object> context);
 
 }

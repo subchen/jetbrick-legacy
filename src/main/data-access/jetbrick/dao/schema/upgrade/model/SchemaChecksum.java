@@ -17,10 +17,10 @@ import com.alibaba.fastjson.JSONObject;
 public class SchemaChecksum extends Entity {
 
     //------ field list ---------------------------------------
-    protected String name;  // 名称(name)
-    protected String type;  // 名称(type)
-    protected String checksum;  // 校验码(checksum)
-    protected java.util.Date timestamp;  // 时间戳(timestamp)
+    protected String name; // 名称(name)
+    protected String type; // 名称(type)
+    protected String checksum; // 校验码(checksum)
+    protected java.util.Date timestamp; // 时间戳(timestamp)
 
     //------ schema -------------------------------------------
     public static final SchemaInfo<SchemaChecksum> SCHEMA;
@@ -38,7 +38,7 @@ public class SchemaChecksum extends Entity {
     static {
         SchemaInfoImpl<SchemaChecksum> schema = new SchemaInfoImpl<SchemaChecksum>();
         SCHEMA = schema;
-        
+
         schema.setTableName("_schema_checksum");
         schema.setTableClass(SchemaChecksum.class);
         schema.setCacheSupport(false);
@@ -71,7 +71,7 @@ public class SchemaChecksum extends Entity {
         }
         return id;
     }
-    
+
     //------ getter / setter ----------------------------------
     public String getName() {
         return name;
@@ -118,12 +118,12 @@ public class SchemaChecksum extends Entity {
 
     //------ dao -----------------------------------
     public static final EntityDaoHelper<SchemaChecksum> DAO = new JdbcEntityDaoHelper(JDBC, SchemaChecksum.class);
-    
+
     @Override
     public EntityDaoHelper<SchemaChecksum> dao() {
         return DAO;
     }
-    
+
     @Override
     public Object[] dao_insert_parameters() {
         return new Object[] { id, name, type, checksum, timestamp };
@@ -229,4 +229,3 @@ public class SchemaChecksum extends Entity {
 
     //------ end ----------------------------------------------
 }
-

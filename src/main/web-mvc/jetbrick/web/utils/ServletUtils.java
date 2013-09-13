@@ -129,7 +129,7 @@ public abstract class ServletUtils {
     public static boolean isAjaxRequest(HttpServletRequest request) {
         return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
     }
-    
+
     // 是否是Pjax请求数据: https://github.com/defunkt/jquery-pjax
     public static boolean isPjaxRequest(HttpServletRequest request) {
         return StringUtils.isNotEmpty(request.getHeader("X-PJAX"));

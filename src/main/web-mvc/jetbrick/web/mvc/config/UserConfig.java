@@ -36,7 +36,7 @@ public abstract class UserConfig {
     public boolean isDevelopmentMode() {
         return false;
     }
-    
+
     public File getUploadDirectory() {
         return SystemUtils.getJavaIoTmpDir();
     }

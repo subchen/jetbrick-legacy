@@ -19,7 +19,7 @@ public abstract class Dialect {
         H2Dialect h2 = new H2Dialect();
         dialect_map.put(H2Dialect.NAME.toLowerCase(), h2);
         dialect_map.put(h2.getName().toLowerCase(), h2);
-        
+
         SqlServerDialect sqlserver = new SqlServerDialect();
         dialect_map.put(SqlServerDialect.NAME.toLowerCase(), sqlserver);
         dialect_map.put(sqlserver.getName().toLowerCase(), sqlserver);

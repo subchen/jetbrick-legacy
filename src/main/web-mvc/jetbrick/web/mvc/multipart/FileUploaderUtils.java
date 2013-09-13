@@ -61,7 +61,7 @@ public class FileUploaderUtils {
                     } finally {
                         IOUtils.closeQuietly(fos);
                     }
-                    
+
                     FileItem fileItem = new FileItem(fieldName, originalFilename, diskFile);
                     req.setFile(fileItem.getFieldName(), fileItem);
                 }
@@ -100,7 +100,7 @@ public class FileUploaderUtils {
         req.setFile(fileItem.getFieldName(), fileItem);
         return req;
     }
-    
+
     private static File getTempFile(File uploadSavePath, String originalFilename) {
         String fileExt = FilenameUtils.getExtension(originalFilename);
         String fileName = RandomStringUtils.randomAlphanumeric(16);

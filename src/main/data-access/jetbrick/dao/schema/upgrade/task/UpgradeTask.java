@@ -2,7 +2,7 @@ package jetbrick.dao.schema.upgrade.task;
 
 import jetbrick.dao.dialect.Dialect;
 import jetbrick.dao.orm.JdbcHelper;
-import jetbrick.dao.schema.data.*;
+import jetbrick.dao.schema.data.Entity;
 import jetbrick.dao.schema.upgrade.UpgradeLogger;
 
 public abstract class UpgradeTask {

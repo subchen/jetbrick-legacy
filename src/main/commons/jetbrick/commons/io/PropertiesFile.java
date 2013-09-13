@@ -1,8 +1,8 @@
 package jetbrick.commons.io;
 
 import java.io.*;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 import jetbrick.commons.bean.ClassConvertUtils;
 import jetbrick.commons.bean.conv.MapConverter;
 import jetbrick.commons.exception.SystemException;

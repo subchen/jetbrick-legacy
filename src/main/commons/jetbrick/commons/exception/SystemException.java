@@ -95,7 +95,7 @@ public class SystemException extends RuntimeException {
         }
         return message;
     }
-    
+
     @Override
     public String getMessage() {
         StringBuilder sb = new StringBuilder();

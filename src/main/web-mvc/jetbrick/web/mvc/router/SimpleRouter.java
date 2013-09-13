@@ -8,7 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import jetbrick.commons.lang.CamelCaseUtils;
 import jetbrick.web.mvc.*;
 import jetbrick.web.mvc.config.WebappConfig;
-import jetbrick.web.mvc.controller.*;
+import jetbrick.web.mvc.controller.After;
+import jetbrick.web.mvc.controller.Before;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class SimpleRouter implements Router {

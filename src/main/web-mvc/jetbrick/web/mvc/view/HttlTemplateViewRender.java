@@ -23,7 +23,7 @@ public class HttlTemplateViewRender extends AbstractViewRender {
         Properties properties = getDefaultProperties();
         properties.putAll(config);
         engine = Engine.getEngine(properties);
-        
+
         viewPattern = "*.httl";
     }
 
