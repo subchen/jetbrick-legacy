@@ -18,6 +18,8 @@ public class HibernateEntity {
         Dialect dialect = DataSourceUtils.getDialect();
 
         LocalSessionFactoryBuilder builder = new LocalSessionFactoryBuilder(dataSource);
+        builder.addResource("classpath:jetbrick/dao/schema/upgrade/model/SchemaChecksum.hbm.xml");
+        builder.addResource("classpath:jetbrick/dao/schema/upgrade/model/SchemaEnum.hbm.xml");
         for (SchemaInfo<?> schema : EntityUtils.getSchemaList()) {
             String path = schema.getTableClass().getPackage().getName().replace(".", "/");
             String file = schema.getTableClass().getSimpleName() + ".hbm.xml";

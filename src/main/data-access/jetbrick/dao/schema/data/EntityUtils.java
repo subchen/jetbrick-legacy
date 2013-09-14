@@ -9,6 +9,8 @@ import jetbrick.commons.xml.XmlNode;
 import jetbrick.dao.id.*;
 import jetbrick.dao.orm.DataSourceUtils;
 import jetbrick.dao.orm.jdbc.RowMapper;
+import jetbrick.dao.schema.upgrade.model.SchemaChecksum;
+import jetbrick.dao.schema.upgrade.model.SchemaEnum;
 import org.apache.commons.collections.map.ListOrderedMap;
 
 public class EntityUtils {
@@ -23,95 +25,58 @@ public class EntityUtils {
         try {
             InputStream schemaXml = Thread.currentThread().getContextClassLoader().getResourceAsStream(SCHEMA_FILE);
 
+            List<Class<?>> entityClassList = new ArrayList();
+            entityClassList.add(SchemaChecksum.class);
+            entityClassList.add(SchemaEnum.class);
+
             XmlNode root = XmlNode.create(schemaXml);
             for (XmlNode node : root.elements()) {
                 try {
                     Class<?> entityClass = node.attribute("class").asClass();
-                    schema_map.put(entityClass, entityClass.getDeclaredField("SCHEMA").get(null));
-                    cache_map.put(entityClass, (EntityCache<?>) entityClass.getDeclaredField("CACHE").get(null));
-                    row_mapper_map.put(entityClass, (RowMapper<?>) entityClass.getDeclaredField("ROW_MAPPER").get(null));
-                    dao_helper_map.put(entityClass, (EntityDaoHelper<?>) entityClass.getDeclaredField("DAO").get(null));
+                    entityClassList.add(entityClass);
                 } catch (Throwable e) {
                     throw SystemException.unchecked(e);
                 }
             }
+
+            for (Class<?> entityClass : entityClassList) {
+                schema_map.put(entityClass, entityClass.getDeclaredField("SCHEMA").get(null));
+                cache_map.put(entityClass, (EntityCache<?>) entityClass.getDeclaredField("CACHE").get(null));
+                dao_helper_map.put(entityClass, (EntityDaoHelper<?>) entityClass.getDeclaredField("DAO").get(null));
+
+                Field field = entityClass.getDeclaredField("ROW_MAPPER");
+                if (field != null) {
+                    row_mapper_map.put(entityClass, (RowMapper<?>) field.get(null));
+                }
+            }
+
         } catch (Throwable e) {
             throw SystemException.unchecked(e);
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static List<Class<? extends Entity>> getEntityClassList() {
         return schema_map.keyList();
     }
 
-    @SuppressWarnings("unchecked")
     public static List<SchemaInfo<? extends Entity>> getSchemaList() {
         return schema_map.valueList();
     }
 
     public static <T extends Entity> SchemaInfo<T> getSchema(Class<T> entityClass) {
-        SchemaInfo<T> schema = (SchemaInfo<T>) schema_map.get(entityClass);
-        if (schema == null) {
-            // for SchemaChecksum, SchemaEnum ...
-            try {
-                Field field = entityClass.getDeclaredField("SCHEMA");
-                field.setAccessible(true);
-                schema = (SchemaInfo<T>) field.get(null);
-                schema_map.put(entityClass, schema);
-            } catch (Throwable e) {
-                throw SystemException.unchecked(e);
-            }
-        }
-        return schema;
+        return (SchemaInfo<T>) schema_map.get(entityClass);
     }
 
     public static <T extends Entity> EntityCache<T> getEntityCache(Class<T> entityClass) {
-        EntityCache<T> cache = (EntityCache<T>) cache_map.get(entityClass);
-        if (cache == null) {
-            // for SchemaChecksum, SchemaEnum ...
-            try {
-                Field field = entityClass.getDeclaredField("CACHE");
-                field.setAccessible(true);
-                cache = (EntityCache<T>) field.get(null);
-                cache_map.put(entityClass, cache);
-            } catch (Throwable e) {
-                throw SystemException.unchecked(e);
-            }
-        }
-        return cache;
+        return (EntityCache<T>) cache_map.get(entityClass);
     }
 
-    public static <T extends Entity> EntityDaoHelper getEntityDaoHelper(Class<T> entityClass) {
-        EntityDaoHelper dao = dao_helper_map.get(entityClass);
-        if (dao == null) {
-            // for SchemaChecksum, SchemaEnum ...
-            try {
-                Field field = entityClass.getDeclaredField("DAO");
-                field.setAccessible(true);
-                dao = (EntityDaoHelper) field.get(null);
-                dao_helper_map.put(entityClass, dao);
-            } catch (Throwable e) {
-                throw SystemException.unchecked(e);
-            }
-        }
-        return dao;
+    public static <T extends Entity> EntityDaoHelper<T> getEntityDaoHelper(Class<T> entityClass) {
+        return (EntityDaoHelper<T>) dao_helper_map.get(entityClass);
     }
 
     public static <T extends Entity> RowMapper<T> getEntityRowMapper(Class<T> entityClass) {
-        RowMapper<T> mapper = (RowMapper<T>) row_mapper_map.get(entityClass);
-        if (mapper == null) {
-            // for SchemaChecksum, SchemaEnum ...
-            try {
-                Field field = entityClass.getDeclaredField("ROW_MAPPER");
-                field.setAccessible(true);
-                mapper = (RowMapper<T>) field.get(null);
-                row_mapper_map.put(entityClass, mapper);
-            } catch (Throwable e) {
-                throw SystemException.unchecked(e);
-            }
-        }
-        return mapper;
+        return (RowMapper<T>) row_mapper_map.get(entityClass);
     }
 
     public static String getTableName(Class<? extends Entity> entityClass) {
