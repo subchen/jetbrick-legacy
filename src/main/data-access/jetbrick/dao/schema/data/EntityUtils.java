@@ -88,8 +88,8 @@ public class EntityUtils {
         return c == null ? null : c.getColumnName();
     }
 
-    public static SequenceId createSequenceId(Class<? extends Entity> entityClass) {
-        return seq_id_provider.create(getTableName(entityClass));
+    public static SequenceId createSequenceId(String name) {
+        return seq_id_provider.create(name);
     }
 
     public static <T extends Entity> Map<Serializable, T> map(List<T> entities) {

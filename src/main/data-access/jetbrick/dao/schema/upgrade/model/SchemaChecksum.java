@@ -63,7 +63,7 @@ public class SchemaChecksum extends Entity {
     }
 
     //------- id ----------------------------------------------
-    private static final jetbrick.dao.id.SequenceId sequence_id = EntityUtils.createSequenceId(SchemaChecksum.class);
+    private static final jetbrick.dao.id.SequenceId sequence_id = SEQ_PROVIDER.create(SCHEMA.getTableName());
 
     @Override
     public Integer generateId() {
@@ -113,7 +113,6 @@ public class SchemaChecksum extends Entity {
     //------ one-to-many --------------------------------------
 
     //------ cache --------------------------------------------
-    @SuppressWarnings("unchecked")
     public static final EntityCache CACHE = EntityCache.NO_CACHE;
 
     @Override
@@ -122,7 +121,19 @@ public class SchemaChecksum extends Entity {
     }
 
     //------ dao -----------------------------------
-    public static final EntityDaoHelper<SchemaChecksum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAOHelper, SchemaChecksum.class);
+    public static final RowMapper<SchemaChecksum> ROW_MAPPER = new RowMapper<SchemaChecksum>() {
+        public SchemaChecksum handle(java.sql.ResultSet rs) throws java.sql.SQLException {
+            SchemaChecksum info = new SchemaChecksum();
+            info.id = rs.getInt("id");
+            info.name = rs.getString("name");
+            info.type = rs.getString("type");
+            info.checksum = rs.getString("checksum");
+            info.timestamp = rs.getTimestamp("timestamp");
+            return info;
+        }
+    };
+
+    public static final EntityDaoHelper<SchemaChecksum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAOHelper, SchemaChecksum.class, SCHEMA, ROW_MAPPER);
 
     @Override
     public EntityDaoHelper<SchemaChecksum> dao() {
@@ -138,18 +149,6 @@ public class SchemaChecksum extends Entity {
     public Object[] dao_update_parameters() {
         return new Object[] { name, type, checksum, timestamp, id };
     }
-
-    public static final RowMapper<SchemaChecksum> ROW_MAPPER = new RowMapper<SchemaChecksum>() {
-        public SchemaChecksum handle(java.sql.ResultSet rs) throws java.sql.SQLException {
-            SchemaChecksum info = new SchemaChecksum();
-            info.id = rs.getInt("id");
-            info.name = rs.getString("name");
-            info.type = rs.getString("type");
-            info.checksum = rs.getString("checksum");
-            info.timestamp = rs.getTimestamp("timestamp");
-            return info;
-        }
-    };
 
     //------ validate -----------------------------------------
     @Override

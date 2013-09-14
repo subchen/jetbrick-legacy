@@ -18,6 +18,7 @@ import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.collections.iterators.SingletonIterator;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.concurrent.LazyInitializer;
 import org.hibernate.*;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.hql.internal.classic.QueryTranslatorImpl;
@@ -28,12 +29,12 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
     private static final int LOAD_SOME_BATCH_SIZE = 100;
 
     private final ThreadLocal<HibernateTransaction> transactionHandler = new ThreadLocal<HibernateTransaction>();
-    private final SessionFactory sessionFactory;
+    private final LazyInitializer<SessionFactory> sessionFactory;
     private final Dialect dialect;
 
-    public HibernateDaoHelper(SessionFactory sessionFactory) {
+    public HibernateDaoHelper(LazyInitializer<SessionFactory> sessionFactory, Dialect dialect) {
         this.sessionFactory = sessionFactory;
-        this.dialect = doGetDialect();
+        this.dialect = dialect;
     }
 
     protected Session getSession() {
@@ -56,7 +57,12 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
         if (transactionHandler.get() != null) {
             throw new SystemException("current transaction has not been closed.", DbError.TRANSACTION_ERROR);
         }
-        HibernateTransaction tx = new HibernateTransaction(sessionFactory.openSession(), transactionHandler);
+        HibernateTransaction tx;
+        try {
+            tx = new HibernateTransaction(sessionFactory.get().openSession(), transactionHandler);
+        } catch (Throwable e) {
+            throw SystemException.unchecked(e);
+        }
         transactionHandler.set(tx);
         return tx;
     }
@@ -437,17 +443,6 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
     public int nextval(String name) {
         String hql = "sql: select " + name + ".nextval from dual";
         return queryAsInt(hql).intValue();
-    }
-
-    private Dialect doGetDialect() {
-        final ObjectHolder<Dialect> result = new ObjectHolder<Dialect>();
-        execute(new ConnectionCallback() {
-            @Override
-            public void execute(Connection conn) {
-                result.put(JdbcUtils.doGetDialect(conn));
-            }
-        });
-        return result.get();
     }
 
 }

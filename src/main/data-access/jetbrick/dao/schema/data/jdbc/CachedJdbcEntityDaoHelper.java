@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.*;
 import jetbrick.dao.orm.Pagelist;
 import jetbrick.dao.orm.SqlUtils;
+import jetbrick.dao.orm.jdbc.RowMapper;
 import jetbrick.dao.schema.data.*;
 import org.apache.commons.collections.map.ListOrderedMap;
 
@@ -11,8 +12,8 @@ import org.apache.commons.collections.map.ListOrderedMap;
 public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHelper<T> {
     protected final EntityCache<T> cache;
 
-    public CachedJdbcEntityDaoHelper(JdbcDaoHelper dao, Class<T> entityClass) {
-        super(dao, entityClass);
+    public CachedJdbcEntityDaoHelper(JdbcDaoHelper dao, Class<T> entityClass, SchemaInfo<T> schema, RowMapper<T> rowMapper) {
+        super(dao, entityClass, schema, rowMapper);
         this.cache = EntityUtils.getEntityCache(entityClass);
     }
 

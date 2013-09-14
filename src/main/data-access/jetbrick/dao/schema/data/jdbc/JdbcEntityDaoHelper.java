@@ -24,12 +24,12 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
     protected final String sql_delete;
     protected final String sql_select;
 
-    public JdbcEntityDaoHelper(JdbcDaoHelper dao, Class<T> entityClass) {
+    public JdbcEntityDaoHelper(JdbcDaoHelper dao, Class<T> entityClass, SchemaInfo<T> schema, RowMapper<T> rowMapper) {
         this.dao = dao.getJdbcHelper();
         this.dialect = dao.getDialect();
         this.entityClass = entityClass;
-        this.schema = EntityUtils.getSchema(entityClass);
-        this.rowMapper = EntityUtils.getEntityRowMapper(entityClass);
+        this.schema = schema;
+        this.rowMapper = rowMapper;
         this.tableNameIdentifier = dialect.getIdentifier(schema.getTableName());
         this.sql_insert = EntitySqlUtils.get_sql_insert(schema, dialect);
         this.sql_update = EntitySqlUtils.get_sql_update(schema, dialect);

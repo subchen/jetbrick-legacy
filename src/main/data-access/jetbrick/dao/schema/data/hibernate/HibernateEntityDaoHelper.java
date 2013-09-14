@@ -15,10 +15,10 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
     protected final String tableNameIdentifier;
     protected final String hql_delete;
 
-    public HibernateEntityDaoHelper(HibernateDaoHelper dao, Class<T> entityClass) {
+    public HibernateEntityDaoHelper(HibernateDaoHelper dao, Class<T> entityClass, SchemaInfo<T> schema) {
         this.dao = dao;
         this.entityClass = entityClass;
-        this.schema = EntityUtils.getSchema(entityClass);
+        this.schema = schema;
         this.tableNameIdentifier = schema.getTableClass().getSimpleName();
         this.hql_delete = "sql:" + EntitySqlUtils.get_sql_delete(schema, dao.getDialect());
     }

@@ -1,6 +1,9 @@
 package jetbrick.dao.schema.data;
 
 import java.io.Serializable;
+import jetbrick.dao.id.JdbcSequenceIdProvider;
+import jetbrick.dao.id.SequenceIdProvider;
+import jetbrick.dao.orm.DataSourceUtils;
 import jetbrick.dao.schema.validator.Validator;
 import jetbrick.dao.schema.validator.ValidatorException;
 import com.alibaba.fastjson.JSONAware;
@@ -13,6 +16,8 @@ import com.alibaba.fastjson.JSONObject;
 public abstract class Entity implements Serializable, Cloneable, JSONAware {
 
     public static final Serializable[] EMPTY_ID_ARRAY = new Serializable[0];
+    
+    protected static final SequenceIdProvider SEQ_PROVIDER = new JdbcSequenceIdProvider(DataSourceUtils.getDataSource());
 
     //------ id -----------------------------------------
     protected Serializable id;

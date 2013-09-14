@@ -63,7 +63,7 @@ public class SchemaEnum extends Entity {
     }
 
     //------- id ----------------------------------------------
-    private static final jetbrick.dao.id.SequenceId sequence_id = EntityUtils.createSequenceId(SchemaEnum.class);
+    private static final jetbrick.dao.id.SequenceId sequence_id = SEQ_PROVIDER.create(SCHEMA.getTableName());
 
     @Override
     public Integer generateId() {
@@ -122,7 +122,19 @@ public class SchemaEnum extends Entity {
     }
 
     //------ dao -----------------------------------
-    public static final EntityDaoHelper<SchemaEnum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAOHelper, SchemaEnum.class);
+    public static final RowMapper<SchemaEnum> ROW_MAPPER = new RowMapper<SchemaEnum>() {
+        public SchemaEnum handle(java.sql.ResultSet rs) throws java.sql.SQLException {
+            SchemaEnum info = new SchemaEnum();
+            info.id = rs.getInt("id");
+            info.pid = rs.getInt("pid");
+            info.name = rs.getString("name");
+            info.defineName = rs.getString("defineName");
+            info.description = rs.getString("description");
+            return info;
+        }
+    };
+
+    public static final EntityDaoHelper<SchemaEnum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAOHelper, SchemaEnum.class, SCHEMA, ROW_MAPPER);
 
     @Override
     public EntityDaoHelper<SchemaEnum> dao() {
@@ -138,18 +150,6 @@ public class SchemaEnum extends Entity {
     public Object[] dao_update_parameters() {
         return new Object[] { pid, name, defineName, description, id };
     }
-
-    public static final RowMapper<SchemaEnum> ROW_MAPPER = new RowMapper<SchemaEnum>() {
-        public SchemaEnum handle(java.sql.ResultSet rs) throws java.sql.SQLException {
-            SchemaEnum info = new SchemaEnum();
-            info.id = rs.getInt("id");
-            info.pid = rs.getInt("pid");
-            info.name = rs.getString("name");
-            info.defineName = rs.getString("defineName");
-            info.description = rs.getString("description");
-            return info;
-        }
-    };
 
     //------ validate -----------------------------------------
     @Override
