@@ -1,5 +1,6 @@
 package jetbrick.dao.schema.data.hibernate;
 
+import java.io.Serializable;
 import java.util.*;
 import jetbrick.dao.orm.Pagelist;
 import jetbrick.dao.orm.SqlUtils;
@@ -32,7 +33,7 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
     }
 
     @Override
-    public int delete(Integer id) {
+    public int delete(Serializable id) {
         cache.deleteEntityObject();
         cache.deleteEntity(id);
         return dao.execute(hql_delete, id);
@@ -72,9 +73,9 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
     }
 
     @Override
-    public int deleteAll(Integer... ids) {
+    public int deleteAll(Serializable... ids) {
         cache.deleteEntityObject();
-        for (Integer id : ids) {
+        for (Serializable id : ids) {
             cache.deleteEntity(id);
         }
         return super.deleteAll(ids);
@@ -82,7 +83,7 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
 
     // -------- load/query ------------------------------------
     @Override
-    public T load(Integer id) {
+    public T load(Serializable id) {
         T entity = (T) cache.getEntity(id);
         if (entity == null) {
             entity = super.load(id);
@@ -94,15 +95,15 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
     }
 
     @Override
-    public List<T> loadSome(Integer... ids) {
+    public List<T> loadSome(Serializable... ids) {
         if (ids == null || ids.length == 0) {
             return Collections.emptyList();
         }
 
-        final List<Integer> no_cache_ids = new ArrayList<Integer>();
+        final List<Serializable> no_cache_ids = new ArrayList<Serializable>();
         final ListOrderedMap result_map = new ListOrderedMap();
         for (int i = 0; i < ids.length; i++) {
-            Integer id = ids[i];
+            Serializable id = ids[i];
             T entity = cache.getEntity(id);
             result_map.put(id, entity);
 
@@ -112,7 +113,7 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
         }
 
         if (no_cache_ids.size() > 0) {
-            List<T> no_cache_entities = super.loadSome((Integer[]) no_cache_ids.toArray());
+            List<T> no_cache_entities = super.loadSome((Serializable[]) no_cache_ids.toArray());
             for (T entity : no_cache_entities) {
                 result_map.put(entity.getId(), entity);
                 cache.addEntity(entity);
@@ -125,7 +126,7 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
     @Override
     public T queryAsObject(String hql, Object... parameters) {
         Object key = cache.createCacheKey("object", hql, parameters);
-        Integer id = cache.getEntityObjectAsId(key);
+        Serializable id = cache.getEntityObjectAsId(key);
         T entity = null;
         if (id == null) {
             entity = (T) dao.queryAsObject(hql, parameters);
@@ -142,7 +143,7 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
     @Override
     public List<T> queryAsList(String hql, Object... parameters) {
         Object key = cache.createCacheKey("list", hql, parameters);
-        Integer[] ids = cache.getEntityObjectAsIds(key);
+        Serializable[] ids = cache.getEntityObjectAsIds(key);
         if (ids == null) {
             List<T> entities = (List<T>) dao.queryAsList(hql, parameters);
             cache.addEntityObjectAsIds(key, entities);
@@ -166,7 +167,7 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
 
         if (pagelist.getCount() > 0) {
             Object key = cache.createCacheKey("pagelist-items", hql, parameters);
-            Integer[] ids = cache.getEntityObjectAsIds(key);
+            Serializable[] ids = cache.getEntityObjectAsIds(key);
             if (ids == null) {
                 dao.queryAsPagelist(pagelist, hql, parameters);
                 cache.addEntityObjectAsIds(key, (List<T>) pagelist.getItems());

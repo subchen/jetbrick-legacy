@@ -41,7 +41,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
     public void initialize() {
         // 读取数据库中存在的 BULK数据文件
         Map<String, SchemaChecksum> db_checksum_map = new HashMap<String, SchemaChecksum>();
-        List<SchemaChecksum> db_checksum_list = SchemaChecksum.DAO.loadSome("type", "BULK");
+        List<SchemaChecksum> db_checksum_list = SchemaChecksum.DAO.loadSomeEx("type", "BULK");
         for (SchemaChecksum checksum : db_checksum_list) {
             db_checksum_map.put(checksum.getName(), checksum);
         }

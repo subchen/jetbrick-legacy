@@ -41,7 +41,7 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
 
         // 读取数据库中存在的Schema
         Map<String, SchemaChecksum> db_checksum_map = ListOrderedMap.decorate(new CaseInsensitiveMap());
-        List<SchemaChecksum> db_checksum_list = SchemaChecksum.DAO.loadSome("type", "TABLE");
+        List<SchemaChecksum> db_checksum_list = SchemaChecksum.DAO.loadSomeEx("type", "TABLE");
         for (SchemaChecksum checksum : db_checksum_list) {
             db_checksum_map.put(checksum.getName(), checksum);
         }

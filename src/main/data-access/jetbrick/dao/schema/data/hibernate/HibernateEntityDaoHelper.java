@@ -72,7 +72,7 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
     }
 
     @Override
-    public int delete(Integer id) {
+    public int delete(Serializable id) {
         return dao.execute(hql_delete, id);
     }
 
@@ -119,7 +119,7 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
         if (entities == null || entities.size() == 0) return;
 
         int i = 0;
-        Integer[] ids = new Integer[entities.size()];
+        Serializable[] ids = new Serializable[entities.size()];
         for (T entity : entities) {
             ids[i++] = entity.getId();
         }
@@ -127,7 +127,7 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
     }
 
     @Override
-    public int deleteAll(Integer... ids) {
+    public int deleteAll(Serializable... ids) {
         if (ids == null || ids.length == 0) {
             return 0;
         }
@@ -138,7 +138,7 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
 
     // -------- load ---------------------------------
     @Override
-    public T load(Integer id) {
+    public T load(Serializable id) {
         return dao.load(entityClass, id);
     }
 
@@ -149,12 +149,12 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
     }
 
     @Override
-    public List<T> loadSome(Integer... ids) {
+    public List<T> loadSome(Serializable... ids) {
         return (List<T>) dao.loadSome(entityClass, "id", (Serializable[]) ids);
     }
 
     @Override
-    public List<T> loadSome(String name, Object value, String... sorts) {
+    public List<T> loadSomeEx(String name, Object value, String... sorts) {
         String hql = "from " + tableNameIdentifier + " where " + name + "=?" + get_hql_sort_part(sorts);
         return queryAsList(hql, value);
     }

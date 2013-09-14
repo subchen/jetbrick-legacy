@@ -12,19 +12,17 @@ import com.alibaba.fastjson.JSONObject;
 @SuppressWarnings("serial")
 public abstract class Entity implements Serializable, Cloneable, JSONAware {
 
-    //------ id -----------------------------------------
-    protected Integer id;
+    public static final Serializable[] EMPTY_ID_ARRAY = new Serializable[0];
 
-    public Integer getId() {
+    //------ id -----------------------------------------
+    protected Serializable id;
+
+    public Serializable getId() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     //生成并返回ID
-    public abstract Integer generateId();
+    public abstract Serializable generateId();
 
     //------ schema -----------------------------------------
     public abstract SchemaInfo<? extends Entity> schema();

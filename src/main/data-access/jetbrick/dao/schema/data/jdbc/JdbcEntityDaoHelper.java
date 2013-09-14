@@ -1,5 +1,6 @@
 package jetbrick.dao.schema.data.jdbc;
 
+import java.io.Serializable;
 import java.util.*;
 import jetbrick.dao.dialect.Dialect;
 import jetbrick.dao.orm.Pagelist;
@@ -83,7 +84,7 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
     }
 
     @Override
-    public int delete(Integer id) {
+    public int delete(Serializable id) {
         return dao.execute(sql_delete, id);
     }
 
@@ -131,7 +132,7 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
         if (entities == null || entities.size() == 0) return;
 
         int i = 0;
-        Integer[] ids = new Integer[entities.size()];
+        Serializable[] ids = new Serializable[entities.size()];
         for (T entity : entities) {
             ids[i++] = entity.getId();
         }
@@ -140,7 +141,7 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
     }
 
     @Override
-    public int deleteAll(Integer... ids) {
+    public int deleteAll(Serializable... ids) {
         if (ids == null || ids.length == 0) {
             return 0;
         }
@@ -151,7 +152,7 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
 
     // -------- load ---------------------------------
     @Override
-    public T load(Integer id) {
+    public T load(Serializable id) {
         return dao.queryAsObject(rowMapper, sql_select, id);
     }
 
@@ -163,7 +164,7 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
 
     // 如果数量超过 LOAD_SOME_BATCH_SIZE， 分批进行 load
     @Override
-    public List<T> loadSome(Integer... ids) {
+    public List<T> loadSome(Serializable... ids) {
         if (ids == null || ids.length == 0) {
             return Collections.<T> emptyList();
         }
@@ -182,11 +183,11 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
     }
 
     // load 固定大小的 内容 (从 offset开始最大载入limit数量)
-    private List<T> loadSome(Integer[] ids, int offset, int limit) {
-        Integer[] some_ids = ids;
+    private List<T> loadSome(Serializable[] ids, int offset, int limit) {
+        Serializable[] some_ids = ids;
         if (offset > 0 || limit < ids.length) {
             int length = Math.min(limit, ids.length - offset);
-            some_ids = new Integer[length];
+            some_ids = new Serializable[length];
             System.arraycopy(ids, offset, some_ids, 0, some_ids.length);
         }
 
@@ -196,7 +197,7 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
     }
 
     @Override
-    public List<T> loadSome(String name, Object value, String... sorts) {
+    public List<T> loadSomeEx(String name, Object value, String... sorts) {
         //@formatter:off
 		String sql = "select * from " + tableNameIdentifier 
 				   + " where " + getColumnNameIdentifier(name) + "=?"

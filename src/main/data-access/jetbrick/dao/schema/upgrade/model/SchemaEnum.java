@@ -70,7 +70,11 @@ public class SchemaEnum extends Entity {
         if (id == null) {
             id = sequence_id.nextVal();
         }
-        return id;
+        return (Integer) id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     //------ getter / setter ----------------------------------

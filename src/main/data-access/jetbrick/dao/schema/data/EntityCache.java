@@ -1,10 +1,10 @@
 package jetbrick.dao.schema.data;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import jetbrick.commons.cache.*;
 import jetbrick.commons.cache.ehcache.EhCacheProvider;
-import org.apache.commons.lang3.ArrayUtils;
 
 public class EntityCache<T extends Entity> {
     public static final EntityCache NO_CACHE = new EntityCache();
@@ -24,7 +24,7 @@ public class EntityCache<T extends Entity> {
     }
 
     // ----------------------------------------------
-    public T getEntity(Integer id) {
+    public T getEntity(Serializable id) {
         return (T) id_cache.get(id);
     }
 
@@ -44,7 +44,7 @@ public class EntityCache<T extends Entity> {
         }
     }
 
-    public void deleteEntity(Integer id) {
+    public void deleteEntity(Serializable id) {
         id_cache.remove(id);
     }
 
@@ -57,12 +57,12 @@ public class EntityCache<T extends Entity> {
     }
 
     //-----------------------------------------
-    public Integer[] getEntityObjectAsIds(Object key) {
-        return (Integer[]) page_cache.get(key);
+    public Serializable[] getEntityObjectAsIds(Object key) {
+        return (Serializable[]) page_cache.get(key);
     }
 
-    public Integer getEntityObjectAsId(Object key) {
-        return (Integer) page_cache.get(key);
+    public Serializable getEntityObjectAsId(Object key) {
+        return (Serializable) page_cache.get(key);
     }
 
     public Integer getEntityObjectAsInt(Object key) {
@@ -73,18 +73,18 @@ public class EntityCache<T extends Entity> {
         page_cache.put(key, value);
     }
 
-    public void addEntityObjectAsId(Object key, Integer id) {
+    public void addEntityObjectAsId(Object key, Serializable id) {
         page_cache.put(key, id);
     }
 
-    public void addEntityObjectAsIds(Object key, Integer[] ids) {
+    public void addEntityObjectAsIds(Object key, Serializable[] ids) {
         page_cache.put(key, ids);
     }
 
     public void addEntityObjectAsIds(Object key, List<T> entities) {
-        Integer[] ids = ArrayUtils.EMPTY_INTEGER_OBJECT_ARRAY;
+        Serializable[] ids = Entity.EMPTY_ID_ARRAY;
         if (entities != null && entities.size() > 0) {
-            ids = new Integer[entities.size()];
+            ids = new Serializable[entities.size()];
             for (int i = 0; i < ids.length; i++) {
                 ids[i] = entities.get(i).getId();
             }

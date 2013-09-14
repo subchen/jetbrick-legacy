@@ -1,5 +1,6 @@
 package jetbrick.dao.schema.data;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import jetbrick.dao.orm.Pagelist;
@@ -25,7 +26,7 @@ public interface EntityDaoHelper<T extends Entity> {
 
     public abstract int delete(T entity);
 
-    public abstract int delete(Integer id);
+    public abstract int delete(Serializable id);
 
     // -------- batch save/update/delete ---------------------------------
     public abstract void saveAll(Collection<T> entities);
@@ -36,16 +37,16 @@ public interface EntityDaoHelper<T extends Entity> {
 
     public abstract void deleteAll(Collection<T> entities);
 
-    public abstract int deleteAll(Integer... ids);
+    public abstract int deleteAll(Serializable... ids);
 
     // -------- load ---------------------------------
-    public abstract T load(Integer id);
+    public abstract T load(Serializable id);
 
     public abstract T load(String name, Object value);
 
-    public abstract List<T> loadSome(Integer... ids);
+    public abstract List<T> loadSome(Serializable... ids);
 
-    public abstract List<T> loadSome(String name, Object value, String... sorts);
+    public abstract List<T> loadSomeEx(String name, Object value, String... sorts);
 
     public abstract List<T> loadAll(String... sorts);
 

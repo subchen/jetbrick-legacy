@@ -42,9 +42,9 @@ public abstract class DataSourceUtils {
 
             PropertiesFile config = new PropertiesFile(file);
 
-            Class<DataSource> dataSourceClass = (Class<DataSource>) config.asClass("dao.datasource");
+            Class<DataSource> dataSourceClass = (Class<DataSource>) config.asClass("jdbc.dataSource");
             if (dataSourceClass == null) {
-                throw new SystemException("jdbc.datasource == null.");
+                throw new SystemException("jdbc.dataSource == null.");
             }
             log.info("Using DataSource : " + dataSourceClass.getName());
 
@@ -64,6 +64,13 @@ public abstract class DataSourceUtils {
                 System.setProperty("com.mchange.v2.c3p0.management.ManagementCoordinator", "com.mchange.v2.c3p0.management.NullManagementCoordinator");
             }
 
+            try {
+                dataSource.getClass().getMethod("init").invoke(dataSource);
+            } catch (NoSuchMethodException e) {
+            } catch (Exception e) {
+                log.error("Unabled to init DataSource!!! ", e);
+            }
+            
             return dataSource;
 
         } catch (Exception e) {

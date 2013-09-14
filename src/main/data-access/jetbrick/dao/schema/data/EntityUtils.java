@@ -1,6 +1,7 @@
 package jetbrick.dao.schema.data;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 import jetbrick.commons.exception.SystemException;
@@ -126,11 +127,11 @@ public class EntityUtils {
         return seq_id_provider.create(getTableName(entityClass));
     }
 
-    public static <T extends Entity> Map<Integer, T> map(List<T> entities) {
+    public static <T extends Entity> Map<Serializable, T> map(List<T> entities) {
         if (entities == null || entities.size() == 0) {
             return Collections.emptyMap();
         }
-        Map<Integer, T> map = new HashMap<Integer, T>();
+        Map<Serializable, T> map = new HashMap<Serializable, T>();
         for (T entity : entities) {
             map.put(entity.getId(), entity);
         }

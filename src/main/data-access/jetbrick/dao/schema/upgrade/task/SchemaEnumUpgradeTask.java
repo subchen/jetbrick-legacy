@@ -1,6 +1,7 @@
 package jetbrick.dao.schema.upgrade.task;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.*;
 import jetbrick.commons.lang.DateUtils;
 import jetbrick.commons.xml.XmlNode;
@@ -36,7 +37,7 @@ public class SchemaEnumUpgradeTask extends UpgradeTask {
 
         // 读取数据库中存在的 Enum checksum
         Map<String, SchemaChecksum> db_checksum_map = ListOrderedMap.decorate(new CaseInsensitiveMap());
-        List<SchemaChecksum> db_checksum_list = SchemaChecksum.DAO.loadSome("type", "ENUM");
+        List<SchemaChecksum> db_checksum_list = SchemaChecksum.DAO.loadSomeEx("type", "ENUM");
         for (SchemaChecksum checksum : db_checksum_list) {
             db_checksum_map.put(checksum.getName(), checksum);
         }
@@ -99,7 +100,7 @@ public class SchemaEnumUpgradeTask extends UpgradeTask {
         List<SchemaEnum> new_queue = new ArrayList<SchemaEnum>();
         List<SchemaEnum> update_queue = new ArrayList<SchemaEnum>();
 
-        Map<Integer, SchemaEnum> db_enum_map = EntityUtils.map(SchemaEnum.DAO.loadAll());
+        Map<Serializable, SchemaEnum> db_enum_map = EntityUtils.map(SchemaEnum.DAO.loadAll());
 
         for (SchemaEnum xml_en : enumQueue) {
             SchemaEnum db_en = db_enum_map.get(xml_en.getId());
