@@ -8,7 +8,7 @@ public abstract class Validator {
 
     public String getName() {
         String name = getClass().getSimpleName();
-        name = StringUtils.remove(name, "Validator");
+        name = StringUtils.removeEnd(name, "Validator");
         return name.toLowerCase();
     }
 

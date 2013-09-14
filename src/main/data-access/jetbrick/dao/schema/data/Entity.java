@@ -2,6 +2,7 @@ package jetbrick.dao.schema.data;
 
 import java.io.Serializable;
 import jetbrick.dao.schema.validator.Validator;
+import jetbrick.dao.schema.validator.ValidatorException;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 
@@ -58,6 +59,10 @@ public abstract class Entity implements Serializable, Cloneable, JSONAware {
     public abstract void validate();
 
     protected void validate(SchemaColumn column, Object value) {
+        if (value == null || "".equals(value)) {
+            if (column.isNullable()) return;
+            throw new ValidatorException("%s must be not empty.", column.getDisplayName());
+        }
         for (Validator v : column.getValidators()) {
             v.validate(column.getFieldName(), value);
         }

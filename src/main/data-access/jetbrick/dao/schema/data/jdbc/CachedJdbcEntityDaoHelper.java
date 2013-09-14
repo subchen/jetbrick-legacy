@@ -5,7 +5,6 @@ import jetbrick.dao.orm.Pagelist;
 import jetbrick.dao.orm.SqlUtils;
 import jetbrick.dao.schema.data.*;
 import org.apache.commons.collections.map.ListOrderedMap;
-import org.apache.commons.lang3.ArrayUtils;
 
 @SuppressWarnings("unchecked")
 public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHelper<T> {
@@ -19,7 +18,7 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
     // -------- save/update/delete ------------------------------------
     @Override
     public int save(T entity) {
-        cache.deleteEntityIds();
+        cache.deleteEntityObject();
         int result = super.save(entity);
         cache.addEntity(entity);
         return result;
@@ -34,7 +33,7 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
 
     @Override
     public int delete(Integer id) {
-        cache.deleteEntityIds();
+        cache.deleteEntityObject();
         cache.deleteEntity(id);
         return dao.execute(sql_delete, id);
     }
@@ -44,7 +43,7 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
     public void saveAll(Collection<T> entities) {
         if (entities == null || entities.size() == 0) return;
 
-        cache.deleteEntityIds();
+        cache.deleteEntityObject();
         super.saveAll(entities);
         cache.addEntities(entities);
     }
@@ -61,7 +60,7 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
     public void saveOrUpdateAll(Collection<T> entities) {
         if (entities == null || entities.size() == 0) return;
 
-        cache.deleteEntityIds();
+        cache.deleteEntityObject();
         for (T entity : entities) {
             if (entity.getId() == null) {
                 save(entity);
@@ -74,7 +73,7 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
 
     @Override
     public int deleteAll(Integer... ids) {
-        cache.deleteEntityIds();
+        cache.deleteEntityObject();
         for (Integer id : ids) {
             cache.deleteEntity(id);
         }
@@ -126,20 +125,16 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
     @Override
     public T queryAsObject(String sql, Object... parameters) {
         Object key = cache.createCacheKey("object", sql, parameters);
-        Integer[] ids = cache.getEntityIds(key);
+        Integer id = cache.getEntityObjectAsId(key);
         T entity = null;
-        if (ids == null) {
+        if (id == null) {
             entity = dao.queryAsObject(rowMapper, sql, parameters);
             if (entity != null) {
                 cache.addEntity(entity);
-                cache.addEntityIds(key, new Integer[] { entity.getId() });
-            } else {
-                cache.addEntityIds(key, ArrayUtils.EMPTY_INTEGER_OBJECT_ARRAY);
+                cache.addEntityObjectAsId(key, entity.getId());
             }
         } else {
-            if (ids.length > 0) {
-                entity = load(ids[0]);
-            }
+            entity = load(id);
         }
         return entity;
     }
@@ -147,10 +142,10 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
     @Override
     public List<T> queryAsList(String sql, Object... parameters) {
         Object key = cache.createCacheKey("list", sql, parameters);
-        Integer[] ids = cache.getEntityIds(key);
+        Integer[] ids = cache.getEntityObjectAsIds(key);
         if (ids == null) {
             List<T> entities = dao.queryAsList(rowMapper, sql, parameters);
-            cache.addEntityIds(key, entities);
+            cache.addEntityObjectAsIds(key, entities);
             return entities;
         } else {
             return loadSome(ids);
@@ -161,22 +156,21 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
     public Pagelist queryAsPagelist(Pagelist pagelist, String sql, Object... parameters) {
         if (pagelist.getCount() < 0) {
             Object key = cache.createCacheKey("pagelist-count", sql, parameters);
-            Integer[] counts = cache.getEntityIds(key);
-            if (counts == null) {
+            Integer count = cache.getEntityObjectAsInt(key);
+            if (count == null) {
                 String count_sql = SqlUtils.get_sql_select_count(sql);
-                Integer count = dao.queryAsInt(count_sql, parameters);
-                counts = new Integer[] { count };
-                cache.addEntityIds(key, counts);
+                count = dao.queryAsInt(count_sql, parameters);
+                cache.addEntityObjectAsInt(key, count);
             }
-            pagelist.setCount(counts[0]);
+            pagelist.setCount(count);
         }
 
         if (pagelist.getCount() > 0) {
             Object key = cache.createCacheKey("pagelist-items", sql, parameters);
-            Integer[] ids = (Integer[]) cache.getEntityIds(key);
+            Integer[] ids = cache.getEntityObjectAsIds(key);
             if (ids == null) {
                 dao.queryAsPagelist(pagelist, rowMapper, sql, parameters);
-                cache.addEntityIds(key, (List<T>) pagelist.getItems());
+                cache.addEntityObjectAsIds(key, (List<T>) pagelist.getItems());
             } else {
                 List<T> items = loadSome(ids);
                 pagelist.setItems(items);

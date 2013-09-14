@@ -60,7 +60,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
                 bulkFile.setInfo(checksum);
 
                 if (checksum == null || !StringUtils.equals(bulkFile.getChecksum(), checksum.getChecksum())) {
-                    // 有变化，则缴入到 queue
+                    // 有变化，则加入到 queue
                     bulkFileQueue.add(bulkFile);
                 }
             } catch (Exception e) {
@@ -97,7 +97,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
 
                 String packageName = bulk.getTableClass().getPackage().getName();
                 packageName = StringUtils.replace(packageName, ".", "/");
-                String fileName = "/" + packageName + "/bulk/" + bulk.getFileName();
+                String fileName = "/META-INF/bulk/" + bulk.getFileName();
                 InputStream is = getClass().getResourceAsStream(fileName);
 
                 doBulk(is, bulk);

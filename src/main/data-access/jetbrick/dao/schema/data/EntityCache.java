@@ -23,6 +23,7 @@ public class EntityCache<T extends Entity> {
         page_cache = NoCache.NO_CACHE;
     }
 
+    // ----------------------------------------------
     public T getEntity(Integer id) {
         return (T) id_cache.get(id);
     }
@@ -55,15 +56,32 @@ public class EntityCache<T extends Entity> {
         id_cache.clear();
     }
 
-    public Integer[] getEntityIds(Object key) {
+    //-----------------------------------------
+    public Integer[] getEntityObjectAsIds(Object key) {
         return (Integer[]) page_cache.get(key);
     }
 
-    public void addEntityIds(Object key, Integer[] ids) {
+    public Integer getEntityObjectAsId(Object key) {
+        return (Integer) page_cache.get(key);
+    }
+
+    public Integer getEntityObjectAsInt(Object key) {
+        return (Integer) page_cache.get(key);
+    }
+
+    public void addEntityObjectAsInt(Object key, Integer value) {
+        page_cache.put(key, value);
+    }
+
+    public void addEntityObjectAsId(Object key, Integer id) {
+        page_cache.put(key, id);
+    }
+
+    public void addEntityObjectAsIds(Object key, Integer[] ids) {
         page_cache.put(key, ids);
     }
 
-    public void addEntityIds(Object key, List<T> entities) {
+    public void addEntityObjectAsIds(Object key, List<T> entities) {
         Integer[] ids = ArrayUtils.EMPTY_INTEGER_OBJECT_ARRAY;
         if (entities != null && entities.size() > 0) {
             ids = new Integer[entities.size()];
@@ -72,13 +90,14 @@ public class EntityCache<T extends Entity> {
             }
         }
         addEntities(entities);
-        addEntityIds(key, ids);
+        addEntityObjectAsIds(key, ids);
     }
 
-    public void deleteEntityIds() {
+    public void deleteEntityObject() {
         page_cache.clear();
     }
 
+    // ------------------------------------------------
     public void clear() {
         id_cache.clear();
         page_cache.clear();
