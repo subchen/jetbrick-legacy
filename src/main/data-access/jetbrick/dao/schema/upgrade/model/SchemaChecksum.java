@@ -19,7 +19,7 @@ public class SchemaChecksum extends Entity {
 
     //------ field list ---------------------------------------
     protected String name; // 名称(name)
-    protected String type; // 名称(type)
+    protected String type; // 类型(type)
     protected String checksum; // 校验码(checksum)
     protected java.util.Date timestamp; // 时间戳(timestamp)
 
@@ -54,7 +54,7 @@ public class SchemaChecksum extends Entity {
         // column list
         SC_ID = schema.addColumn("id", Integer.class, "id", "uid", null, null, false, null, "ID", null, true, null, true);
         SC_NAME = schema.addColumn("name", String.class, "name", "varchar", 50, null, false, null, "名称", null, false, null, true);
-        SC_TYPE = schema.addColumn("type", String.class, "type", "varchar", 50, null, false, null, "名称", null, false, null, true);
+        SC_TYPE = schema.addColumn("type", String.class, "type", "varchar", 50, null, false, null, "类型", null, false, null, true);
         SC_CHECKSUM = schema.addColumn("checksum", String.class, "checksum", "char", 32, null, false, null, "校验码", null, false, null, true);
         SC_TIMESTAMP = schema.addColumn("timestamp", java.util.Date.class, "timestamp", "datetime", null, null, false, null, "时间戳", null, false, null, true);
 

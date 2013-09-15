@@ -12,6 +12,8 @@ import jetbrick.dao.orm.jdbc.RowMapper;
 import jetbrick.dao.schema.upgrade.model.SchemaChecksum;
 import jetbrick.dao.schema.upgrade.model.SchemaEnum;
 import org.apache.commons.collections.map.ListOrderedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EntityUtils {
     private static final String SCHEMA_FILE = "/META-INF/schema-table.xml";
@@ -23,6 +25,9 @@ public class EntityUtils {
 
     static {
         try {
+            Logger log = LoggerFactory.getLogger(EntityUtils.class);
+            log.debug("EntityUtils init ...");
+
             InputStream schemaXml = Thread.currentThread().getContextClassLoader().getResourceAsStream(SCHEMA_FILE);
 
             List<Class<?>> entityClassList = new ArrayList();
@@ -50,17 +55,19 @@ public class EntityUtils {
                 }
             }
 
+            log.debug("EntityUtils init completed.");
+
         } catch (Throwable e) {
             throw SystemException.unchecked(e);
         }
     }
 
     public static List<Class<? extends Entity>> getEntityClassList() {
-        return schema_map.keyList();
+        return new ArrayList(schema_map.keyList());
     }
 
     public static List<SchemaInfo<? extends Entity>> getSchemaList() {
-        return schema_map.valueList();
+        return new ArrayList(schema_map.valueList());
     }
 
     public static <T extends Entity> SchemaInfo<T> getSchema(Class<T> entityClass) {

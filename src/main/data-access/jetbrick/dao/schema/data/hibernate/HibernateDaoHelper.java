@@ -23,6 +23,7 @@ import org.hibernate.*;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.hql.internal.classic.QueryTranslatorImpl;
 import org.hibernate.jdbc.Work;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class HibernateDaoHelper implements SimpleDaoHelper {
@@ -35,6 +36,8 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
     public HibernateDaoHelper(LazyInitializer<SessionFactory> sessionFactory, Dialect dialect) {
         this.sessionFactory = sessionFactory;
         this.dialect = dialect;
+        
+        LoggerFactory.getLogger(HibernateDaoHelper.class).debug("HibernateDaoHelper init completed.");
     }
 
     protected Session getSession() {

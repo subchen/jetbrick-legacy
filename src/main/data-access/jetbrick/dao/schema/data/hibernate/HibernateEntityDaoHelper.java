@@ -6,6 +6,7 @@ import java.util.List;
 import jetbrick.dao.orm.Pagelist;
 import jetbrick.dao.schema.data.*;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unchecked")
 public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T> {
@@ -21,6 +22,8 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
         this.schema = schema;
         this.tableNameIdentifier = schema.getTableClass().getSimpleName();
         this.hql_delete = "sql:" + EntitySqlUtils.get_sql_delete(schema, dao.getDialect());
+        
+        LoggerFactory.getLogger(HibernateEntityDaoHelper.class).debug("HibernateEntityDaoHelper init completed: " + entityClass.getName());
     }
 
     //------ table ----------------------------------

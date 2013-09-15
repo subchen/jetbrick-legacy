@@ -1,6 +1,7 @@
 package jetbrick.dao.schema.data.jdbc;
 
 import java.util.*;
+import org.slf4j.LoggerFactory;
 import jetbrick.dao.dialect.Dialect;
 import jetbrick.dao.orm.ConnectionCallback;
 import jetbrick.dao.orm.jdbc.JdbcHelper;
@@ -14,6 +15,8 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
     public JdbcDaoHelper(JdbcHelper dao) {
         this.dao = dao;
         this.dialect = dao.getDialect();
+        
+        LoggerFactory.getLogger(JdbcDaoHelper.class).debug("JdbcDaoHelper init completed.");
     }
 
     public JdbcTransaction transation() {

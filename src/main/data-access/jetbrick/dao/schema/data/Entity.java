@@ -64,7 +64,7 @@ public abstract class Entity implements Serializable, Cloneable, JSONAware {
     protected void validate(SchemaColumn column, Object value) {
         if (value == null || "".equals(value)) {
             if (column.isNullable()) return;
-            throw new ValidatorException("%s must be not empty.", column.getDisplayName());
+            throw new ValidatorException("%s(%s) must be not empty.", column.getDisplayName(), column.getFieldName());
         }
         for (Validator v : column.getValidators()) {
             v.validate(column.getFieldName(), value);

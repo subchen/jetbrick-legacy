@@ -116,6 +116,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
             info = SchemaChecksum.newInstance();
         }
         info.setName(bulk.getFileName());
+        info.setType("BULK");
         info.setChecksum(bulk.getChecksum());
         info.setTimestamp(DateUtils.getTimestamp());
         info.saveOrUpdate();

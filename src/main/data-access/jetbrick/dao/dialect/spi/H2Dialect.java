@@ -27,7 +27,7 @@ public class H2Dialect extends Dialect {
         if (supportsColumnPosition() && column_position != null) {
             sql = sql + " " + column_position;
         }
-        return sql + ";";
+        return sql;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class H2Dialect extends Dialect {
         if (supportsColumnPosition() && column_position != null) {
             sql = sql + " " + column_position;
         }
-        return sql + ";";
+        return sql;
     }
 
     @Override
