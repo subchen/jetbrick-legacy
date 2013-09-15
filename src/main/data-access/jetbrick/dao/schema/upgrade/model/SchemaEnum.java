@@ -134,7 +134,7 @@ public class SchemaEnum extends Entity {
         }
     };
 
-    public static final EntityDaoHelper<SchemaEnum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAOHelper, SchemaEnum.class, SCHEMA, ROW_MAPPER);
+    public static final EntityDaoHelper<SchemaEnum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAO, SchemaEnum.class, SCHEMA, ROW_MAPPER);
 
     @Override
     public EntityDaoHelper<SchemaEnum> dao() {

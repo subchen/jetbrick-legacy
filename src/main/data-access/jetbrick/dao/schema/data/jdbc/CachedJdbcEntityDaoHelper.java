@@ -12,9 +12,9 @@ import org.apache.commons.collections.map.ListOrderedMap;
 public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHelper<T> {
     protected final EntityCache<T> cache;
 
-    public CachedJdbcEntityDaoHelper(JdbcDaoHelper dao, Class<T> entityClass, SchemaInfo<T> schema, RowMapper<T> rowMapper) {
+    public CachedJdbcEntityDaoHelper(JdbcDaoHelper dao, Class<T> entityClass, SchemaInfo<T> schema, RowMapper<T> rowMapper, EntityCache<T> cache) {
         super(dao, entityClass, schema, rowMapper);
-        this.cache = EntityUtils.getEntityCache(entityClass);
+        this.cache = cache;
     }
 
     // -------- save/update/delete ------------------------------------

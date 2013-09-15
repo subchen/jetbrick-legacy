@@ -14,7 +14,7 @@ public class HibernateTransationInterceptor implements Interceptor {
 
     @Override
     public void intercept(RequestContext rc, InterceptorChain chain) throws Throwable {
-        HibernateTransaction tx = HibernateEntity.DAOHelper.transaction();
+        HibernateTransaction tx = HibernateEntity.DAO.transaction();
         try {
             chain.invork(rc);
             tx.commit();

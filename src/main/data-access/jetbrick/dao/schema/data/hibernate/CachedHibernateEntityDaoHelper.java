@@ -11,9 +11,9 @@ import org.apache.commons.collections.map.ListOrderedMap;
 public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateEntityDaoHelper<T> {
     protected final EntityCache<T> cache;
 
-    public CachedHibernateEntityDaoHelper(HibernateDaoHelper dao, Class<T> entityClass, SchemaInfo<T> schema) {
+    public CachedHibernateEntityDaoHelper(HibernateDaoHelper dao, Class<T> entityClass, SchemaInfo<T> schema, EntityCache<T> cache) {
         super(dao, entityClass, schema);
-        this.cache = EntityUtils.getEntityCache(entityClass);
+        this.cache = cache;
     }
 
     // -------- save/update/delete ------------------------------------

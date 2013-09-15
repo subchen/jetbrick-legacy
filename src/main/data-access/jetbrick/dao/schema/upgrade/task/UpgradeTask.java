@@ -12,7 +12,7 @@ public abstract class UpgradeTask {
 
     public UpgradeTask(UpgradeLogger fileLog) {
         this.fileLog = fileLog;
-        this.dao = JdbcEntity.DAOHelper;
+        this.dao = JdbcEntity.DAO;
         this.dialect = dao.getDialect();
     }
 

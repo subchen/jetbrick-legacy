@@ -133,7 +133,7 @@ public class SchemaChecksum extends Entity {
         }
     };
 
-    public static final EntityDaoHelper<SchemaChecksum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAOHelper, SchemaChecksum.class, SCHEMA, ROW_MAPPER);
+    public static final EntityDaoHelper<SchemaChecksum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAO, SchemaChecksum.class, SCHEMA, ROW_MAPPER);
 
     @Override
     public EntityDaoHelper<SchemaChecksum> dao() {

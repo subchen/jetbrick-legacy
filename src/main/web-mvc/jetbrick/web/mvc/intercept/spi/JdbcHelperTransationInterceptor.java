@@ -14,7 +14,7 @@ public class JdbcHelperTransationInterceptor implements Interceptor {
 
     @Override
     public void intercept(RequestContext rc, InterceptorChain chain) throws Throwable {
-        JdbcTransaction tx = JdbcEntity.DAOHelper.transation();
+        JdbcTransaction tx = JdbcEntity.DAO.transation();
         try {
             chain.invork(rc);
             tx.commit();

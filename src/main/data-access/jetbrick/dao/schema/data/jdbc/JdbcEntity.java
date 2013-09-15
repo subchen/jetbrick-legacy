@@ -5,6 +5,6 @@ import jetbrick.dao.orm.jdbc.JdbcHelper;
 
 public class JdbcEntity {
 
-    public static final JdbcDaoHelper DAOHelper = new JdbcDaoHelper(new JdbcHelper(DataSourceUtils.getDataSource()));
+    public static final JdbcDaoHelper DAO = new JdbcDaoHelper(new JdbcHelper(DataSourceUtils.getDataSource()));
 
 }

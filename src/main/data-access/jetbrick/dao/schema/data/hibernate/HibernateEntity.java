@@ -15,7 +15,7 @@ import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 
 public class HibernateEntity {
 
-    public static final HibernateDaoHelper DAOHelper = new HibernateDaoHelper(getLazySessionFactory(), DataSourceUtils.getDialect());
+    public static final HibernateDaoHelper DAO = new HibernateDaoHelper(getLazySessionFactory(), DataSourceUtils.getDialect());
 
     private static LazyInitializer<SessionFactory> getLazySessionFactory() {
         return new LazyInitializer<SessionFactory>() {

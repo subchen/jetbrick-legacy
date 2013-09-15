@@ -15,6 +15,7 @@ import org.apache.commons.collections.map.ListOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+//必须确保 entity 和 dao 类的初始化不依赖这个类
 public class EntityUtils {
     private static final String SCHEMA_FILE = "/META-INF/schema-table.xml";
     private static final ListOrderedMap schema_map = new ListOrderedMap();
