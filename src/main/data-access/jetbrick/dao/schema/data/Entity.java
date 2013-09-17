@@ -29,31 +29,15 @@ public abstract class Entity implements Serializable, Cloneable, JSONAware {
     //生成并返回ID
     public abstract Serializable generateId();
 
-    //------ schema -----------------------------------------
-    public abstract SchemaInfo<? extends Entity> schema();
-
-    //------ cache -----------------------------------------
-    public abstract EntityCache<? extends Entity> cache();
-
     //------ dao ---------------------------------
-    public abstract EntityDaoHelper dao();
+    public abstract int save();
 
-    public int save() {
-        return dao().save(this);
-    }
+    public abstract int update();
 
-    public int update() {
-        return dao().update(this);
-    }
+    public abstract int saveOrUpdate();
 
-    public int saveOrUpdate() {
-        return dao().saveOrUpdate(this);
-    }
-
-    public int delete() {
-        return dao().delete(this);
-    }
-
+    public abstract int delete();
+    
     public abstract Object[] dao_insert_parameters();
 
     public abstract Object[] dao_update_parameters();
