@@ -12,7 +12,9 @@ import jetbrick.commons.exception.SystemException;
 import jetbrick.commons.lang.ObjectHolder;
 import jetbrick.dao.dialect.Dialect;
 import jetbrick.dao.orm.*;
+import jetbrick.dao.orm.Transaction;
 import jetbrick.dao.schema.data.SimpleDaoHelper;
+import jetbrick.dao.schema.data.SimpleDaoHelperCallback;
 import org.apache.commons.beanutils.*;
 import org.apache.commons.collections.iterators.ArrayIterator;
 import org.apache.commons.collections.iterators.SingletonIterator;
@@ -25,10 +27,15 @@ import org.hibernate.hql.internal.classic.QueryTranslatorImpl;
 import org.hibernate.jdbc.Work;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 数据库操作。单例使用
+ */
 @SuppressWarnings("unchecked")
 public class HibernateDaoHelper implements SimpleDaoHelper {
     private static final int LOAD_SOME_BATCH_SIZE = 100;
+    private static final boolean ALLOW_NESTED_TRANSACTION = true;
 
+    // 当前线程(事务)
     private final ThreadLocal<HibernateTransaction> transactionHandler = new ThreadLocal<HibernateTransaction>();
     private final LazyInitializer<SessionFactory> sessionFactory;
     private final Dialect dialect;
@@ -36,38 +43,68 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
     public HibernateDaoHelper(LazyInitializer<SessionFactory> sessionFactory, Dialect dialect) {
         this.sessionFactory = sessionFactory;
         this.dialect = dialect;
-        
-        LoggerFactory.getLogger(HibernateDaoHelper.class).debug("HibernateDaoHelper init completed.");
+
+        if (sessionFactory != null) {
+            // not in nested transaction
+            LoggerFactory.getLogger(HibernateDaoHelper.class).debug("HibernateDaoHelper init completed.");
+        }
     }
 
+    /**
+     * 启动一个事务(默认支持子事务)
+     */
+    @Override
+    public Transaction transaction() {
+        if (transactionHandler.get() != null) {
+            if (ALLOW_NESTED_TRANSACTION) {
+                return HibernateNestedTransaction.NOOP;
+            }
+            throw new SystemException("Can't begin a nested transaction.", DbError.TRANSACTION_ERROR);
+        }
+        try {
+            Session session = sessionFactory.get().openSession();
+            HibernateTransaction tx = new HibernateTransaction(session, transactionHandler);
+            transactionHandler.set(tx);
+            return tx;
+        } catch (Throwable e) {
+            throw SystemException.unchecked(e, DbError.TRANSACTION_ERROR);
+        }
+    }
+
+    /**
+     * 获取一个当前线程的连接(事务中)，如果没有，则新建一个。
+     */
     protected Session getSession() {
         HibernateTransaction tx = transactionHandler.get();
-        if (tx == null) {
-            throw new SystemException("current transaction has not been started.", DbError.TRANSACTION_ERROR);
-        } else {
-            return tx.getSession();
+        try {
+            if (tx == null) {
+                return sessionFactory.get().openSession();
+            } else {
+                return tx.getSession();
+            }
+        } catch (Throwable e) {
+            throw SystemException.unchecked(e);
+        }
+    }
+
+    /**
+     * 释放一个连接，如果不在 session 不在事务中，则关闭它，否则不处理。
+     */
+    protected void closeSession(Session session) {
+        if (transactionHandler.get() == null) {
+            // not in transaction
+            if (!session.isOpen()) {
+                throw new SystemException("the session is closed.", DbError.TRANSACTION_ERROR);
+            }
+            session.close();
         }
     }
 
     public void flush() {
-        getSession().flush();
-    }
-
-    /**
-     * 启动一个事务
-     */
-    public HibernateTransaction transaction() {
-        if (transactionHandler.get() != null) {
-            throw new SystemException("current transaction has not been closed.", DbError.TRANSACTION_ERROR);
+        HibernateTransaction tx = transactionHandler.get();
+        if (tx != null) {
+            tx.getSession().flush();
         }
-        HibernateTransaction tx;
-        try {
-            tx = new HibernateTransaction(sessionFactory.get().openSession(), transactionHandler);
-        } catch (Throwable e) {
-            throw SystemException.unchecked(e);
-        }
-        transactionHandler.set(tx);
-        return tx;
     }
 
     // ----- dialect ---------------------------------------
@@ -92,71 +129,166 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
     // ----- execute -----------------------------------------------------
     @Override
     public int execute(String hql, Object... parameters) {
-        return createQuery(getSession(), hql, parameters).executeUpdate();
+        Session session = getSession();
+        try {
+            return createQuery(session, hql, parameters).executeUpdate();
+        } finally {
+            closeSession(session);
+        }
     }
 
+    // 作为一个事务运行
     @Override
     public void execute(final ConnectionCallback callback) {
-        getSession().doWork(new Work() {
-            @Override
-            public void execute(Connection conn) throws SQLException {
-                callback.execute(conn);
-            }
-        });
+        Transaction tx = transaction();
+        try {
+            getSession().doWork(new Work() {
+                @Override
+                public void execute(Connection conn) throws SQLException {
+                    callback.execute(conn);
+                }
+            });
+            tx.commit();
+        } catch (Throwable e) {
+            tx.rollback();
+            throw SystemException.unchecked(e);
+        } finally {
+            tx.close();
+        }
+    }
+
+    // 作为一个事务运行
+    @Override
+    public void execute(final SimpleDaoHelperCallback<SimpleDaoHelper> callback) {
+        Transaction tx = transaction();
+        try {
+            final Session session = getSession();
+            HibernateDaoHelper dao = new HibernateDaoHelper(null, dialect) {
+                @Override
+                public HibernateTransaction transaction() {
+                    throw new SystemException("the session is in nested transaction.", DbError.TRANSACTION_ERROR);
+                }
+
+                @Override
+                protected Session getSession() {
+                    return session;
+                }
+
+                @Override
+                protected void closeSession(Session session) {
+                }
+
+                @Override
+                public void flush() {
+                    session.flush();
+                }
+            };
+            callback.execute(dao);
+            tx.commit();
+        } catch (Throwable e) {
+            tx.rollback();
+            throw SystemException.unchecked(e);
+        } finally {
+            tx.close();
+        }
     }
 
     // ----- save/update/delete -----------------------------------------------------
     public Serializable save(Object entity) {
-        return getSession().save(entity);
+        Session session = getSession();
+        try {
+            return session.save(entity);
+        } finally {
+            closeSession(session);
+        }
     }
 
     public void update(Object entity) {
-        getSession().update(entity);
+        Session session = getSession();
+        try {
+            session.update(entity);
+        } finally {
+            closeSession(session);
+        }
     }
 
     public void saveOrUpdate(Object entity) {
-        getSession().saveOrUpdate(entity);
+        Session session = getSession();
+        try {
+            session.saveOrUpdate(entity);
+        } finally {
+            closeSession(session);
+        }
     }
 
     public void delete(Object entity) {
-        getSession().delete(entity);
+        Session session = getSession();
+        try {
+            session.delete(entity);
+        } finally {
+            closeSession(session);
+        }
     }
 
     public void delete(Class<?> clazz, Serializable id) {
-        delete(load(clazz, id));
+        Session session = getSession();
+        try {
+            Object entity = session.get(clazz, id);
+            if (entity != null) {
+                session.delete(entity);
+            }
+        } finally {
+            closeSession(session);
+        }
     }
 
     // ----- batch save/update/delete -----------------------------------------------------
     public void saveAll(Collection<?> entities) {
         Session session = getSession();
-        for (Object entity : entities) {
-            session.save(entity);
+        try {
+            for (Object entity : entities) {
+                session.save(entity);
+            }
+            session.flush();
+        } finally {
+            closeSession(session);
         }
-        session.flush();
     }
 
     public void updateAll(Collection<?> entities) {
         Session session = getSession();
-        for (Object entity : entities) {
-            session.update(entity);
+        try {
+            for (Object entity : entities) {
+                session.update(entity);
+            }
+            session.flush();
+        } finally {
+            closeSession(session);
         }
-        session.flush();
     }
 
     public void saveOrUpdateAll(Collection<?> entities) {
         Session session = getSession();
-        for (Object entity : entities) {
-            session.saveOrUpdate(entity);
+        try {
+            for (Object entity : entities) {
+                session.saveOrUpdate(entity);
+            }
+            session.flush();
+        } finally {
+            closeSession(session);
         }
-        session.flush();
     }
 
     public void deleteAll(Collection<?> entities) {
         Session session = getSession();
-        for (Object entity : entities) {
-            session.delete(entity);
+        try {
+            for (Object entity : entities) {
+                session.delete(entity);
+            }
+            session.flush();
+        } finally {
+            closeSession(session);
         }
-        session.flush();
     }
 
     public int deleteAll(Class<?> clazz, String name, Object value) {
@@ -169,13 +301,24 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
             hql = "delete from " + clazz.getName() + " where " + name + " in (:list0)";
         }
         Iterator<?> parameters = (value == null) ? null : new SingletonIterator(value);
-        return createQueryByIterator(getSession(), hql, parameters).executeUpdate();
+
+        Session session = getSession();
+        try {
+            return createQueryByIterator(session, hql, parameters).executeUpdate();
+        } finally {
+            closeSession(session);
+        }
     }
 
     // ----- query -----------------------------------------------------
 
     public <T> T load(Class<T> clazz, Serializable id) {
-        return (T) getSession().get(clazz, id);
+        Session session = getSession();
+        try {
+            return (T) session.get(clazz, id);
+        } finally {
+            closeSession(session);
+        }
     }
 
     public <T> T load(Class<T> clazz, String name, Object value) {
@@ -188,7 +331,13 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
             hql = "from " + clazz.getName() + " where " + name + " in (:list0)";
         }
         Iterator<?> parameters = (value == null) ? null : new SingletonIterator(value);
-        return (T) createQueryByIterator(getSession(), hql, parameters).setMaxResults(1).uniqueResult();
+
+        Session session = getSession();
+        try {
+            return (T) createQueryByIterator(session, hql, parameters).setMaxResults(1).uniqueResult();
+        } finally {
+            closeSession(session);
+        }
     }
 
     // 如果数量超过 LOAD_SOME_BATCH_SIZE， 分批进行 load
@@ -200,18 +349,23 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
             return loadSome(clazz, name, ids, 0, LOAD_SOME_BATCH_SIZE);
         }
 
-        List<T> items = new ArrayList<T>(ids.length);
-        int offset = 0;
-        while (offset < ids.length) {
-            List<T> some = loadSome(clazz, name, ids, offset, LOAD_SOME_BATCH_SIZE);
-            items.addAll(some);
-            offset += LOAD_SOME_BATCH_SIZE;
+        Session session = getSession();
+        try {
+            List<T> items = new ArrayList<T>(ids.length);
+            int offset = 0;
+            while (offset < ids.length) {
+                List<T> some = loadSome(session, clazz, name, ids, offset, LOAD_SOME_BATCH_SIZE);
+                items.addAll(some);
+                offset += LOAD_SOME_BATCH_SIZE;
+            }
+            return items;
+        } finally {
+            closeSession(session);
         }
-        return items;
     }
 
     // load 固定大小的 内容 (从 offset开始最大载入limit数量)
-    private <T> List<T> loadSome(Class<T> clazz, String name, Serializable[] ids, int offset, int limit) {
+    private <T> List<T> loadSome(Session session, Class<T> clazz, String name, Serializable[] ids, int offset, int limit) {
         Serializable[] some_ids = ids;
         if (offset > 0 || limit < ids.length) {
             int length = Math.min(limit, ids.length - offset);
@@ -221,7 +375,7 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
 
         String values = StringUtils.repeat("?", ",", some_ids.length);
         String hql = "from " + clazz.getName() + " where " + name + " in (" + values + ")";
-        return (List<T>) queryAsList(hql, (Object[]) some_ids);
+        return (List<T>) createQuery(session, hql, (Object[]) some_ids).list();
     }
 
     public <T> List<T> loadAll(Class<T> clazz, String... sorts) {
@@ -230,7 +384,12 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
     }
 
     public Object queryAsObject(String hql, Object... parameters) {
-        return createQuery(getSession(), hql, parameters).setMaxResults(1).uniqueResult();
+        Session session = getSession();
+        try {
+            return createQuery(session, hql, parameters).setMaxResults(1).uniqueResult();
+        } finally {
+            closeSession(session);
+        }
     }
 
     @Override
@@ -259,8 +418,13 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
     }
 
     protected <T> T queryAsObjectCast(Class<T> clazz, String hql, Object... parameters) {
-        Object result = createQuery(getSession(), hql, parameters).setMaxResults(1).uniqueResult();
-        return (result == null) ? null : (T) ConvertUtils.convert(result, clazz);
+        Session session = getSession();
+        try {
+            Object result = createQuery(session, hql, parameters).setMaxResults(1).uniqueResult();
+            return (result == null) ? null : (T) ConvertUtils.convert(result, clazz);
+        } finally {
+            closeSession(session);
+        }
     }
 
     @Override
@@ -285,18 +449,34 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
         }
         hql = hql + get_hql_sort_part(sorts);
         Iterator<?> parameters = (value == null) ? null : new SingletonIterator(value);
-        return (List<T>) createQueryByIterator(getSession(), hql, parameters).list();
+
+        Session session = getSession();
+        try {
+            return (List<T>) createQueryByIterator(session, hql, parameters).list();
+        } finally {
+            closeSession(session);
+        }
     }
 
     public List<?> queryAsList(String hql, Object... parameters) {
-        return createQuery(getSession(), hql, parameters).list();
+        Session session = getSession();
+        try {
+            return createQuery(session, hql, parameters).list();
+        } finally {
+            closeSession(session);
+        }
     }
 
     public List<?> queryAsList(int max, String hql, Object... parameters) {
-        Query query = createQuery(getSession(), hql, parameters);
-        query.setFirstResult(0);
-        query.setMaxResults(max);
-        return query.list();
+        Session session = getSession();
+        try {
+            Query query = createQuery(session, hql, parameters);
+            query.setFirstResult(0);
+            query.setMaxResults(max);
+            return query.list();
+        } finally {
+            closeSession(session);
+        }
     }
 
     public <T> Pagelist queryAsPagelist(Pagelist pagelist, Class<T> clazz, String... sorts) {
@@ -306,24 +486,26 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
 
     public Pagelist queryAsPagelist(Pagelist pagelist, String hql, Object... parameters) {
         Session session = getSession();
+        try {
+            if (pagelist.getCount() < 0) {
+                String hql_count = SqlUtils.get_sql_select_count(hql);
+                Query query = createQuery(session, hql_count, parameters);
+                int count = ((Number) query.uniqueResult()).intValue();
+                pagelist.setCount(count);
+            }
 
-        if (pagelist.getCount() < 0) {
-            String hql_count = SqlUtils.get_sql_select_count(hql);
-            Query query = createQuery(session, hql_count, parameters);
-            int count = ((Number) query.uniqueResult()).intValue();
-            pagelist.setCount(count);
+            List<?> items = Collections.EMPTY_LIST;
+            if (pagelist.getCount() > 0) {
+                Query query = createQuery(session, hql, parameters);
+                query.setFirstResult(pagelist.getFirstResult());
+                query.setMaxResults(pagelist.getPageSize());
+                items = query.list();
+            }
+            pagelist.setItems(items);
+            return pagelist;
+        } finally {
+            closeSession(session);
         }
-
-        List<?> items = Collections.EMPTY_LIST;
-        if (pagelist.getCount() > 0) {
-            Query query = createQuery(session, hql, parameters);
-            query.setFirstResult(pagelist.getFirstResult());
-            query.setMaxResults(pagelist.getPageSize());
-            items = query.list();
-        }
-        pagelist.setItems(items);
-
-        return pagelist;
     }
 
     private Query createQuery(Session session, String hql, Object... parameters) {

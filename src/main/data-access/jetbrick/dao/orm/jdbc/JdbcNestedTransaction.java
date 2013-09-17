@@ -1,27 +1,23 @@
 package jetbrick.dao.orm.jdbc;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.*;
 import jetbrick.commons.exception.DbError;
 import jetbrick.commons.exception.SystemException;
 import jetbrick.dao.orm.Transaction;
-import jetbrick.dao.orm.JdbcUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 /**
- * Jdbc 事务对象
+ * Jdbc 子事务
  */
-public class JdbcTransaction implements Transaction {
+public class JdbcNestedTransaction implements Transaction {
     private Connection conn;
-    private ThreadLocal<JdbcTransaction> transationHandler;
+    private Savepoint savepoint;
 
-    protected JdbcTransaction(Connection conn, ThreadLocal<JdbcTransaction> transationHandler) {
+    protected JdbcNestedTransaction(Connection conn) {
         this.conn = conn;
-        this.transationHandler = transationHandler;
 
         try {
-            if (conn.getAutoCommit()) {
-                conn.setAutoCommit(false);
-            }
+            savepoint = conn.setSavepoint(RandomStringUtils.randomAlphabetic(4));
         } catch (SQLException e) {
             throw SystemException.unchecked(e, DbError.TRANSACTION_ERROR);
         }
@@ -34,14 +30,13 @@ public class JdbcTransaction implements Transaction {
     /**
      * 提交一个事务
      */
-    @Override
     public void commit() {
         try {
             if (conn.isClosed()) {
                 throw new SystemException("the connection is closed in transaction.", DbError.TRANSACTION_ERROR);
             }
-            conn.commit();
-            conn.setAutoCommit(true);
+            // 子事务不需要 commit
+            // conn.commit(savepoint);
         } catch (SQLException e) {
             throw SystemException.unchecked(e, DbError.TRANSACTION_ERROR);
         }
@@ -50,14 +45,12 @@ public class JdbcTransaction implements Transaction {
     /**
      * 回滚一个事务
      */
-    @Override
     public void rollback() {
         try {
             if (conn.isClosed()) {
                 throw new SystemException("the connection is closed in transaction.", DbError.TRANSACTION_ERROR);
             }
-            conn.rollback();
-            conn.setAutoCommit(true);
+            conn.rollback(savepoint);
         } catch (SQLException e) {
             throw SystemException.unchecked(e, DbError.TRANSACTION_ERROR);
         }
@@ -66,18 +59,8 @@ public class JdbcTransaction implements Transaction {
     /**
      * 结束一个事务
      */
-    @Override
     public void close() {
-        try {
-            if (conn.isClosed()) {
-                throw new SystemException("the connection is closed in transaction.", DbError.TRANSACTION_ERROR);
-            }
-            JdbcUtils.closeQuietly(conn);
-        } catch (SQLException e) {
-            throw SystemException.unchecked(e, DbError.TRANSACTION_ERROR);
-        } finally {
-            transationHandler.set(null);
-        }
+        // 子事务不需要 close
     }
 
 }

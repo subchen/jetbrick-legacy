@@ -18,6 +18,8 @@ import jetbrick.dao.orm.jdbc.utils.PreparedStatementCreator;
  */
 @SuppressWarnings("unchecked")
 public class JdbcHelper {
+    private static final boolean ALLOW_NESTED_TRANSACTION = true;
+
     // 当前线程(事务)
     private final ThreadLocal<JdbcTransaction> transationHandler = new ThreadLocal<JdbcTransaction>();
     private final DataSource dataSource;
@@ -33,11 +35,14 @@ public class JdbcHelper {
     }
 
     /**
-     * 启动一个事务
+     * 启动一个事务(默认支持子事务)
      */
-    public JdbcTransaction transaction() {
+    public Transaction transaction() {
         if (transationHandler.get() != null) {
-            throw new SystemException("current transaction has not been closed.", DbError.TRANSACTION_ERROR);
+            if (ALLOW_NESTED_TRANSACTION) {
+                return new JdbcNestedTransaction(transationHandler.get().getConnection());
+            }
+            throw new SystemException("Can't begin a nested transaction.", DbError.TRANSACTION_ERROR);
         }
         try {
             JdbcTransaction tx = new JdbcTransaction(dataSource.getConnection(), transationHandler);

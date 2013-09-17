@@ -1,12 +1,14 @@
 package jetbrick.dao.schema.data.jdbc;
 
 import java.util.*;
-import org.slf4j.LoggerFactory;
+import jetbrick.commons.exception.SystemException;
 import jetbrick.dao.dialect.Dialect;
 import jetbrick.dao.orm.ConnectionCallback;
+import jetbrick.dao.orm.Transaction;
 import jetbrick.dao.orm.jdbc.JdbcHelper;
-import jetbrick.dao.orm.jdbc.JdbcTransaction;
 import jetbrick.dao.schema.data.SimpleDaoHelper;
+import jetbrick.dao.schema.data.SimpleDaoHelperCallback;
+import org.slf4j.LoggerFactory;
 
 public class JdbcDaoHelper implements SimpleDaoHelper {
     protected final JdbcHelper dao;
@@ -19,10 +21,6 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
         LoggerFactory.getLogger(JdbcDaoHelper.class).debug("JdbcDaoHelper init completed.");
     }
 
-    public JdbcTransaction transation() {
-        return dao.transaction();
-    }
-
     public JdbcHelper getJdbcHelper() {
         return dao;
     }
@@ -32,7 +30,16 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
     public Dialect getDialect() {
         return dialect;
     }
-
+    
+    // ----- transaction ---------------------------------------
+    /**
+     * 启动一个事务(默认支持子事务)
+     */
+    @Override
+    public Transaction transaction() {
+        return dao.transaction();
+    }
+    
     // ----- table ---------------------------------------
     @Override
     public boolean tableExist(String tableName) {
@@ -49,9 +56,34 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
         return dao.executeBatch(sql, parameters);
     }
 
+    // 作为一个事务运行
     @Override
     public void execute(ConnectionCallback callback) {
-        dao.execute(callback);
+        Transaction tx = transaction();
+        try {
+            dao.execute(callback);
+            tx.commit();
+        } catch(Throwable e) {
+            tx.rollback();
+            throw SystemException.unchecked(e);
+        } finally {
+            tx.close();
+        }
+    }
+
+    // 作为一个事务运行
+    @Override
+    public void execute(final SimpleDaoHelperCallback<SimpleDaoHelper> callback) {
+        Transaction tx = transaction();
+        try {
+            callback.execute(this);
+            tx.commit();
+        } catch(Throwable e) {
+            tx.rollback();
+            throw SystemException.unchecked(e);
+        } finally {
+            tx.close();
+        }
     }
 
     // ----- query ---------------------------------------
@@ -88,5 +120,4 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
     public <T> T[] queryAsArray(Class<T> arrayComponentClass, String sql, Object... parameters) {
         return dao.queryAsArray(arrayComponentClass, sql, parameters);
     }
-
 }
