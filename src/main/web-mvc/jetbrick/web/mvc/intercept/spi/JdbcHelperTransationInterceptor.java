@@ -1,6 +1,6 @@
 package jetbrick.web.mvc.intercept.spi;
 
-import jetbrick.dao.orm.jdbc.JdbcTransaction;
+import jetbrick.dao.orm.Transaction;
 import jetbrick.dao.schema.data.jdbc.JdbcEntity;
 import jetbrick.web.mvc.RequestContext;
 import jetbrick.web.mvc.config.WebappConfig;
@@ -14,7 +14,7 @@ public class JdbcHelperTransationInterceptor implements Interceptor {
 
     @Override
     public void intercept(RequestContext rc, InterceptorChain chain) throws Throwable {
-        JdbcTransaction tx = JdbcEntity.DAO.transation();
+        Transaction tx = JdbcEntity.DAO.transaction();
         try {
             chain.invork(rc);
             tx.commit();
