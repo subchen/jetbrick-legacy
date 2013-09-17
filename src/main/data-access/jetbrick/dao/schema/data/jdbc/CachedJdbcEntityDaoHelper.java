@@ -155,7 +155,7 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
     }
 
     @Override
-    public Pagelist queryAsPagelist(Pagelist pagelist, String sql, Object... parameters) {
+    public Pagelist<T> queryAsPagelist(Pagelist<T> pagelist, String sql, Object... parameters) {
         if (pagelist.getCount() < 0) {
             Object key = cache.createCacheKey("pagelist-count", sql, parameters);
             Integer count = cache.getEntityObjectAsInt(key);

@@ -8,8 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 
-public class Pagelist implements JSONAware {
-    private List<?> items;
+public class Pagelist<T> implements JSONAware {
+    private List<T> items;
     private int page;
     private int pageSize;
     private int count;
@@ -48,11 +48,11 @@ public class Pagelist implements JSONAware {
         }
     }
 
-    public List<?> getItems() {
+    public List<T> getItems() {
         return items;
     }
 
-    public void setItems(List<?> items) {
+    public void setItems(List<T> items) {
         this.items = items;
     }
 

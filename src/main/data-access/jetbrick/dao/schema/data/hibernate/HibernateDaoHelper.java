@@ -479,12 +479,12 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
         }
     }
 
-    public <T> Pagelist queryAsPagelist(Pagelist pagelist, Class<T> clazz, String... sorts) {
+    public <T> Pagelist<T> queryAsPagelist(Pagelist<T> pagelist, Class<T> clazz, String... sorts) {
         String hql = "from " + clazz.getName() + get_hql_sort_part(sorts);
         return queryAsPagelist(pagelist, hql);
     }
 
-    public Pagelist queryAsPagelist(Pagelist pagelist, String hql, Object... parameters) {
+    public <T> Pagelist<T> queryAsPagelist(Pagelist<T> pagelist, String hql, Object... parameters) {
         Session session = getSession();
         try {
             if (pagelist.getCount() < 0) {
@@ -494,7 +494,7 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
                 pagelist.setCount(count);
             }
 
-            List<?> items = Collections.EMPTY_LIST;
+            List<T> items = Collections.EMPTY_LIST;
             if (pagelist.getCount() > 0) {
                 Query query = createQuery(session, hql, parameters);
                 query.setFirstResult(pagelist.getFirstResult());

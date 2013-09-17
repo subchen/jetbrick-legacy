@@ -154,7 +154,7 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
     }
 
     @Override
-    public Pagelist queryAsPagelist(Pagelist pagelist, String hql, Object... parameters) {
+    public Pagelist<T> queryAsPagelist(Pagelist<T> pagelist, String hql, Object... parameters) {
         if (pagelist.getCount() < 0) {
             Object key = cache.createCacheKey("pagelist-count", hql, parameters);
             Integer count = cache.getEntityObjectAsInt(key);

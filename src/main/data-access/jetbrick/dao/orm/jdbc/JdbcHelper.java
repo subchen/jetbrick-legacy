@@ -138,14 +138,14 @@ public class JdbcHelper {
         }
     }
 
-    public <T> Pagelist queryAsPagelist(Pagelist pagelist, Class<T> beanClass, String sql, Object... parameters) {
+    public <T> Pagelist<T> queryAsPagelist(Pagelist<T> pagelist, Class<T> beanClass, String sql, Object... parameters) {
         AssertUtils.notNull(beanClass, "beanClass is null.");
 
         RowMapper<T> rowMapper = getRowMapper(beanClass);
         return queryAsPagelist(pagelist, rowMapper, sql, parameters);
     }
 
-    public <T> Pagelist queryAsPagelist(Pagelist pagelist, RowMapper<T> rowMapper, String sql, Object... parameters) {
+    public <T> Pagelist<T> queryAsPagelist(Pagelist<T> pagelist, RowMapper<T> rowMapper, String sql, Object... parameters) {
         AssertUtils.notNull(pagelist, "pagelist is null.");
         AssertUtils.notNull(rowMapper, "rowMapper is null.");
 
@@ -155,7 +155,7 @@ public class JdbcHelper {
             pagelist.setCount(count);
         }
 
-        List<?> items = Collections.emptyList();
+        List<T> items = Collections.emptyList();
         if (pagelist.getCount() > 0) {
             String page_sql = dialect.sql_pagelist(sql, pagelist.getFirstResult(), pagelist.getPageSize());
             PagelistHandler<T> rsh = new PagelistHandler<T>(rowMapper);

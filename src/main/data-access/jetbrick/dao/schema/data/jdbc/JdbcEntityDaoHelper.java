@@ -154,6 +154,12 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
         return dao.execute(sql, (Object[]) ids);
     }
 
+    @Override
+    public int deleteAllEx(String name, Object value) {
+        String sql = "delete from " + tableNameIdentifier + " where " + getColumnNameIdentifier(name) + "=?";
+        return execute(sql, value);
+    }
+
     // -------- load ---------------------------------
     @Override
     public T load(Serializable id) {
@@ -161,7 +167,7 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
     }
 
     @Override
-    public T load(String name, Object value) {
+    public T loadEx(String name, Object value) {
         String sql = "select * from " + tableNameIdentifier + " where " + getColumnNameIdentifier(name) + "=?";
         return queryAsObject(sql, value);
     }
@@ -228,13 +234,13 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
     }
 
     @Override
-    public Pagelist queryAsPagelist(Pagelist pagelist, String sql, Object... parameters) {
+    public Pagelist<T> queryAsPagelist(Pagelist<T> pagelist, String sql, Object... parameters) {
         return dao.queryAsPagelist(pagelist, rowMapper, sql, parameters);
     }
 
     @Override
-    public Pagelist queryAsPagelist(HttpServletRequest request, String sql, Object... parameters) {
-        return queryAsPagelist(new Pagelist(request), sql, parameters);
+    public Pagelist<T> queryAsPagelist(HttpServletRequest request, String sql, Object... parameters) {
+        return queryAsPagelist(new Pagelist<T>(request), sql, parameters);
     }
 
     // ----- execute ---------------------------------------

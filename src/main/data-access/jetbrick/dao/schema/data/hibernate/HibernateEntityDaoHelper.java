@@ -140,6 +140,12 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
         return dao.execute(hql, (Object[]) ids);
     }
 
+    @Override
+    public int deleteAllEx(String name, Object value) {
+        String sql = "delete from " + tableNameIdentifier + " where " + name + "=?";
+        return execute(sql, value);
+    }
+
     // -------- load ---------------------------------
     @Override
     public T load(Serializable id) {
@@ -147,7 +153,7 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
     }
 
     @Override
-    public T load(String name, Object value) {
+    public T loadEx(String name, Object value) {
         String hql = "from " + tableNameIdentifier + " where " + name + "=?";
         return queryAsObject(hql, value);
     }
@@ -184,13 +190,13 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
     }
 
     @Override
-    public Pagelist queryAsPagelist(Pagelist pagelist, String hql, Object... parameters) {
+    public Pagelist<T> queryAsPagelist(Pagelist<T> pagelist, String hql, Object... parameters) {
         return dao.queryAsPagelist(pagelist, hql, parameters);
     }
 
     @Override
-    public Pagelist queryAsPagelist(HttpServletRequest request, String hql, Object... parameters) {
-        return queryAsPagelist(new Pagelist(request), hql, parameters);
+    public Pagelist<T> queryAsPagelist(HttpServletRequest request, String hql, Object... parameters) {
+        return queryAsPagelist(new Pagelist<T>(request), hql, parameters);
     }
 
     // ----- execute ---------------------------------------

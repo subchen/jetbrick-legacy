@@ -40,10 +40,12 @@ public interface EntityDaoHelper<T extends Entity> {
 
     public int deleteAll(Serializable... ids);
 
+    public int deleteAllEx(String name, Object value);
+
     // -------- load ---------------------------------
     public T load(Serializable id);
 
-    public T load(String name, Object value);
+    public T loadEx(String name, Object value);
 
     public List<T> loadSome(Serializable... ids);
 
@@ -56,9 +58,9 @@ public interface EntityDaoHelper<T extends Entity> {
 
     public List<T> queryAsList(String sql, Object... parameters);
 
-    public Pagelist queryAsPagelist(Pagelist pagelist, String sql, Object... parameters);
+    public Pagelist<T> queryAsPagelist(Pagelist<T> pagelist, String sql, Object... parameters);
 
-    public Pagelist queryAsPagelist(HttpServletRequest request, String hql, Object... parameters);
+    public Pagelist<T> queryAsPagelist(HttpServletRequest request, String sql, Object... parameters);
 
     // ----- execute ---------------------------------------
     public int execute(String sql, Object... parameters);
