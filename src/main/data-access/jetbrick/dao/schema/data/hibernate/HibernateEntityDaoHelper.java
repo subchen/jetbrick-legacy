@@ -22,7 +22,7 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
         this.schema = schema;
         this.tableNameIdentifier = schema.getTableClass().getSimpleName();
         this.hql_delete = "sql:" + EntitySqlUtils.get_sql_delete(schema, dao.getDialect());
-        
+
         LoggerFactory.getLogger(HibernateEntityDaoHelper.class).debug("HibernateEntityDaoHelper init completed: " + entityClass.getName());
     }
 

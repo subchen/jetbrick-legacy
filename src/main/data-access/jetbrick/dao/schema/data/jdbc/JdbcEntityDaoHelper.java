@@ -36,7 +36,7 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
         this.sql_update = EntitySqlUtils.get_sql_update(schema, dialect);
         this.sql_delete = EntitySqlUtils.get_sql_delete(schema, dialect);
         this.sql_select = EntitySqlUtils.get_sql_select_object(schema, dialect);
-        
+
         LoggerFactory.getLogger(JdbcEntityDaoHelper.class).debug("JdbcEntityDaoHelper init completed: " + entityClass.getName());
     }
 

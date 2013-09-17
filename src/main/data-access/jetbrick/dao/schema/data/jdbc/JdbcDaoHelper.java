@@ -17,7 +17,7 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
     public JdbcDaoHelper(JdbcHelper dao) {
         this.dao = dao;
         this.dialect = dao.getDialect();
-        
+
         LoggerFactory.getLogger(JdbcDaoHelper.class).debug("JdbcDaoHelper init completed.");
     }
 
@@ -30,7 +30,7 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
     public Dialect getDialect() {
         return dialect;
     }
-    
+
     // ----- transaction ---------------------------------------
     /**
      * 启动一个事务(默认支持子事务)
@@ -39,7 +39,7 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
     public Transaction transaction() {
         return dao.transaction();
     }
-    
+
     // ----- table ---------------------------------------
     @Override
     public boolean tableExist(String tableName) {
@@ -63,7 +63,7 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
         try {
             dao.execute(callback);
             tx.commit();
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             tx.rollback();
             throw SystemException.unchecked(e);
         } finally {
@@ -78,7 +78,7 @@ public class JdbcDaoHelper implements SimpleDaoHelper {
         try {
             callback.execute(this);
             tx.commit();
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             tx.rollback();
             throw SystemException.unchecked(e);
         } finally {

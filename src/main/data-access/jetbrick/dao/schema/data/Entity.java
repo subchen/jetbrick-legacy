@@ -16,7 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 public abstract class Entity implements Serializable, Cloneable, JSONAware {
 
     public static final Serializable[] EMPTY_ID_ARRAY = new Serializable[0];
-    
+
     protected static final SequenceIdProvider SEQ_PROVIDER = new JdbcSequenceIdProvider(DataSourceUtils.getDataSource());
 
     //------ id -----------------------------------------

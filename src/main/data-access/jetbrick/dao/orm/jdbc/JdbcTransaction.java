@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import jetbrick.commons.exception.DbError;
 import jetbrick.commons.exception.SystemException;
-import jetbrick.dao.orm.Transaction;
 import jetbrick.dao.orm.JdbcUtils;
+import jetbrick.dao.orm.Transaction;
 
 /**
  * Jdbc 事务对象
