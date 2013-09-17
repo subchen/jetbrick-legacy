@@ -180,4 +180,11 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
 
         return pagelist;
     }
+
+    // ----- execute ---------------------------------------
+    @Override
+    public int execute(String hql, Object... parameters) {
+        cache.clear();
+        return dao.execute(hql, parameters);
+    }
 }

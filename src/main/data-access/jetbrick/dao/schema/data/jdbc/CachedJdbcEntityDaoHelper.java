@@ -181,4 +181,11 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
 
         return pagelist;
     }
+
+    // ----- execute ---------------------------------------
+    @Override
+    public int execute(String sql, Object... parameters) {
+        cache.clear();
+        return dao.execute(sql, parameters);
+    }
 }

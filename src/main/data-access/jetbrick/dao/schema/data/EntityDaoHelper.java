@@ -60,4 +60,7 @@ public interface EntityDaoHelper<T extends Entity> {
 
     public Pagelist queryAsPagelist(HttpServletRequest request, String hql, Object... parameters);
 
+    // ----- execute ---------------------------------------
+    public int execute(String sql, Object... parameters);
+
 }

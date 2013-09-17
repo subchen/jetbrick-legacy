@@ -193,6 +193,12 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
         return queryAsPagelist(new Pagelist(request), hql, parameters);
     }
 
+    // ----- execute ---------------------------------------
+    @Override
+    public int execute(String hql, Object... parameters) {
+        return dao.execute(hql, parameters);
+    }
+
     // ----- hql gen ---------------------------------------------
     private String get_hql_sort_part(String... sorts) {
         if (sorts == null || sorts.length == 0) {

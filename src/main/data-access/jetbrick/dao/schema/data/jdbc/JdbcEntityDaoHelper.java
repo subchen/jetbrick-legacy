@@ -233,8 +233,14 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
     }
 
     @Override
-    public Pagelist queryAsPagelist(HttpServletRequest request, String hql, Object... parameters) {
-        return queryAsPagelist(new Pagelist(request), hql, parameters);
+    public Pagelist queryAsPagelist(HttpServletRequest request, String sql, Object... parameters) {
+        return queryAsPagelist(new Pagelist(request), sql, parameters);
+    }
+
+    // ----- execute ---------------------------------------
+    @Override
+    public int execute(String sql, Object... parameters) {
+        return dao.execute(sql, parameters);
     }
 
     // ----- sql gen ---------------------------------------------
