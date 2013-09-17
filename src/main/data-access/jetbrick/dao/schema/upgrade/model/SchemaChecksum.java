@@ -31,11 +31,6 @@ public class SchemaChecksum extends Entity {
     public static final SchemaColumn SC_CHECKSUM;
     public static final SchemaColumn SC_TIMESTAMP;
 
-    @Override
-    public SchemaInfo<SchemaChecksum> schema() {
-        return SCHEMA;
-    }
-
     static {
         SchemaInfoImpl<SchemaChecksum> schema = new SchemaInfoImpl<SchemaChecksum>();
         SCHEMA = schema;
@@ -115,11 +110,6 @@ public class SchemaChecksum extends Entity {
     //------ cache --------------------------------------------
     public static final EntityCache CACHE = EntityCache.NO_CACHE;
 
-    @Override
-    public EntityCache<SchemaChecksum> cache() {
-        return CACHE;
-    }
-
     //------ dao -----------------------------------
     public static final RowMapper<SchemaChecksum> ROW_MAPPER = new RowMapper<SchemaChecksum>() {
         public SchemaChecksum handle(java.sql.ResultSet rs) throws java.sql.SQLException {
@@ -136,8 +126,23 @@ public class SchemaChecksum extends Entity {
     public static final EntityDaoHelper<SchemaChecksum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAO, SchemaChecksum.class, SCHEMA, ROW_MAPPER);
 
     @Override
-    public EntityDaoHelper<SchemaChecksum> dao() {
-        return DAO;
+    public int save() {
+        return DAO.save(this);
+    }
+
+    @Override
+    public int update() {
+        return DAO.update(this);
+    }
+
+    @Override
+    public int saveOrUpdate() {
+        return DAO.saveOrUpdate(this);
+    }
+
+    @Override
+    public int delete() {
+        return DAO.delete(this);
     }
 
     @Override

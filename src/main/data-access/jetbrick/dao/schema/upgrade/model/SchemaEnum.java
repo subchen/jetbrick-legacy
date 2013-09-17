@@ -31,11 +31,6 @@ public class SchemaEnum extends Entity {
     public static final SchemaColumn SC_DEFINE_NAME;
     public static final SchemaColumn SC_DESCRIPTION;
 
-    @Override
-    public SchemaInfo<SchemaEnum> schema() {
-        return SCHEMA;
-    }
-
     static {
         SchemaInfoImpl<SchemaEnum> schema = new SchemaInfoImpl<SchemaEnum>();
         SCHEMA = schema;
@@ -116,11 +111,6 @@ public class SchemaEnum extends Entity {
     @SuppressWarnings("unchecked")
     public static final EntityCache CACHE = EntityCache.NO_CACHE;
 
-    @Override
-    public EntityCache<SchemaEnum> cache() {
-        return CACHE;
-    }
-
     //------ dao -----------------------------------
     public static final RowMapper<SchemaEnum> ROW_MAPPER = new RowMapper<SchemaEnum>() {
         public SchemaEnum handle(java.sql.ResultSet rs) throws java.sql.SQLException {
@@ -137,8 +127,23 @@ public class SchemaEnum extends Entity {
     public static final EntityDaoHelper<SchemaEnum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAO, SchemaEnum.class, SCHEMA, ROW_MAPPER);
 
     @Override
-    public EntityDaoHelper<SchemaEnum> dao() {
-        return DAO;
+    public int save() {
+        return DAO.save(this);
+    }
+
+    @Override
+    public int update() {
+        return DAO.update(this);
+    }
+
+    @Override
+    public int saveOrUpdate() {
+        return DAO.saveOrUpdate(this);
+    }
+
+    @Override
+    public int delete() {
+        return DAO.delete(this);
     }
 
     @Override
