@@ -2,6 +2,7 @@ package jetbrick.dao.schema.data.jdbc;
 
 import java.io.Serializable;
 import java.util.*;
+import javax.servlet.http.HttpServletRequest;
 import jetbrick.dao.dialect.Dialect;
 import jetbrick.dao.orm.Pagelist;
 import jetbrick.dao.orm.jdbc.JdbcHelper;
@@ -229,6 +230,11 @@ public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T>
     @Override
     public Pagelist queryAsPagelist(Pagelist pagelist, String sql, Object... parameters) {
         return dao.queryAsPagelist(pagelist, rowMapper, sql, parameters);
+    }
+
+    @Override
+    public Pagelist queryAsPagelist(HttpServletRequest request, String hql, Object... parameters) {
+        return queryAsPagelist(new Pagelist(request), hql, parameters);
     }
 
     // ----- sql gen ---------------------------------------------

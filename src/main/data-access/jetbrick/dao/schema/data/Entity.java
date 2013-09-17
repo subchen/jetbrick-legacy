@@ -37,7 +37,7 @@ public abstract class Entity implements Serializable, Cloneable, JSONAware {
     public abstract int saveOrUpdate();
 
     public abstract int delete();
-    
+
     public abstract Object[] dao_insert_parameters();
 
     public abstract Object[] dao_update_parameters();

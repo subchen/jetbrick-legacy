@@ -3,6 +3,7 @@ package jetbrick.dao.schema.data.hibernate;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import jetbrick.dao.orm.Pagelist;
 import jetbrick.dao.schema.data.*;
 import org.apache.commons.lang3.StringUtils;
@@ -185,6 +186,11 @@ public class HibernateEntityDaoHelper<T extends Entity> implements EntityDaoHelp
     @Override
     public Pagelist queryAsPagelist(Pagelist pagelist, String hql, Object... parameters) {
         return dao.queryAsPagelist(pagelist, hql, parameters);
+    }
+
+    @Override
+    public Pagelist queryAsPagelist(HttpServletRequest request, String hql, Object... parameters) {
+        return queryAsPagelist(new Pagelist(request), hql, parameters);
     }
 
     // ----- hql gen ---------------------------------------------
