@@ -140,7 +140,7 @@ public class SchemaBulkUpgradeTask extends UpgradeTask {
         List<List<Object>> datalist = new ArrayList<List<Object>>();
         while (true) {
             List<Object> bean = csv.read(processors);
-            if (bean != null) break;
+            if (bean == null) break;
             datalist.add(bean);
         }
         csv.close();
