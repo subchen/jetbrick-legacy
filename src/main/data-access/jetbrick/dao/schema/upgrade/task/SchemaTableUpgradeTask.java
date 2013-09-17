@@ -130,9 +130,9 @@ public class SchemaTableUpgradeTask extends UpgradeTask {
                 def.getChecksum().save();
             } else if (def.getAction() == Action.UPDATE) {
                 if (dao.tableExist(tableName)) {
-                    log.warn(String.format("Table %s does not exist, will be created.", tableName));
                     tableModify(def.getSchema(), def.getChecksum());
                 } else {
+                    log.warn(String.format("Table %s does not exist, will be created.", tableName));
                     tableCreate(def.getSchema());
                 }
                 // update table checksum
