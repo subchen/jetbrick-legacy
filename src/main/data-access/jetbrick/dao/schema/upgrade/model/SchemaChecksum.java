@@ -68,6 +68,11 @@ public class SchemaChecksum extends Entity {
         return (Integer) id;
     }
 
+    @Override
+    public Integer getId() {
+        return (Integer) id;
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }
