@@ -81,7 +81,7 @@ public class EntityCache<T extends Entity> {
         page_cache.put(key, ids);
     }
 
-    public void addEntityObjectAsIds(Object key, List<T> entities) {
+    public void addEntityObjectAsList(Object key, List<T> entities) {
         Serializable[] ids = Entity.EMPTY_ID_ARRAY;
         if (entities != null && entities.size() > 0) {
             ids = new Serializable[entities.size()];

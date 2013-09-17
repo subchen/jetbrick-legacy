@@ -146,7 +146,7 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
         Serializable[] ids = cache.getEntityObjectAsIds(key);
         if (ids == null) {
             List<T> entities = (List<T>) dao.queryAsList(hql, parameters);
-            cache.addEntityObjectAsIds(key, entities);
+            cache.addEntityObjectAsList(key, entities);
             return entities;
         } else {
             return loadSome(ids);
@@ -170,7 +170,7 @@ public class CachedHibernateEntityDaoHelper<T extends Entity> extends HibernateE
             Serializable[] ids = cache.getEntityObjectAsIds(key);
             if (ids == null) {
                 dao.queryAsPagelist(pagelist, hql, parameters);
-                cache.addEntityObjectAsIds(key, (List<T>) pagelist.getItems());
+                cache.addEntityObjectAsList(key, (List<T>) pagelist.getItems());
             } else {
                 List<T> items = loadSome(ids);
                 pagelist.setItems(items);

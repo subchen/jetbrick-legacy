@@ -147,7 +147,7 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
         Serializable[] ids = cache.getEntityObjectAsIds(key);
         if (ids == null) {
             List<T> entities = dao.queryAsList(rowMapper, sql, parameters);
-            cache.addEntityObjectAsIds(key, entities);
+            cache.addEntityObjectAsList(key, entities);
             return entities;
         } else {
             return loadSome(ids);
@@ -172,7 +172,7 @@ public class CachedJdbcEntityDaoHelper<T extends Entity> extends JdbcEntityDaoHe
             Serializable[] ids = cache.getEntityObjectAsIds(key);
             if (ids == null) {
                 dao.queryAsPagelist(pagelist, rowMapper, sql, parameters);
-                cache.addEntityObjectAsIds(key, (List<T>) pagelist.getItems());
+                cache.addEntityObjectAsList(key, (List<T>) pagelist.getItems());
             } else {
                 List<T> items = loadSome(ids);
                 pagelist.setItems(items);
