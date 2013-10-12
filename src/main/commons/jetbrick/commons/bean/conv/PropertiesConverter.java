@@ -1,21 +1,21 @@
 package jetbrick.commons.bean.conv;
 
-import java.util.*;
+import java.util.Properties;
 import jetbrick.commons.bean.ClassConvertUtils;
 
 /**
- * MapConverter 的默认实现
+ * MapConverter 的 Properties 实现
  */
-public class MapConverterImpl extends MapConverter {
-    protected Map<String, Object> map;
+public class PropertiesConverter extends MapConverter {
+    protected Properties props;
 
-    public MapConverterImpl(Map<String, Object> map) {
-        this.map = map;
+    public PropertiesConverter(Properties props) {
+        this.props = props;
     }
 
     @Override
     protected Object value(String key) {
-        return map.get(key);
+        return props.get(key);
     }
 
     @Override
@@ -25,6 +25,6 @@ public class MapConverterImpl extends MapConverter {
 
     @Override
     public boolean exist(String key) {
-        return map.containsKey(key);
+        return props.containsKey(key);
     }
 }

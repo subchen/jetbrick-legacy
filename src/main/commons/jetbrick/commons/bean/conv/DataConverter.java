@@ -73,15 +73,15 @@ public abstract class DataConverter {
         return (value == null) ? defaultValue : ClassConvertUtils.convert(value, Double.class);
     }
 
-    public boolean asBoolValue() {
-        return asBool(false).booleanValue();
+    public boolean asBooleanValue() {
+        return asBoolean(false).booleanValue();
     }
 
-    public Boolean asBool() {
-        return asBool(null);
+    public Boolean asBoolean() {
+        return asBoolean(null);
     }
 
-    public Boolean asBool(Boolean defaultValue) {
+    public Boolean asBoolean(Boolean defaultValue) {
         Object value = value();
         return (value == null) ? defaultValue : ClassConvertUtils.convert(value, Boolean.class);
     }
@@ -162,7 +162,7 @@ public abstract class DataConverter {
         return (values == null) ? ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY : ClassConvertUtils.convertArrays(values, Double.class);
     }
 
-    public Boolean[] asBools() {
+    public Boolean[] asBooleans() {
         String[] values = values();
         return (values == null) ? ArrayUtils.EMPTY_BOOLEAN_OBJECT_ARRAY : ClassConvertUtils.convertArrays(values, Boolean.class);
     }

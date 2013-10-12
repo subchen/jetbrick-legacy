@@ -66,15 +66,15 @@ public abstract class MapConverter {
         return (value == null) ? defaultValue : ClassConvertUtils.convert(value, Double.class);
     }
 
-    public boolean asBoolValue(String key) {
-        return asBool(key, false).booleanValue();
+    public boolean asBooleanValue(String key) {
+        return asBoolean(key, false).booleanValue();
     }
 
-    public Boolean asBool(String key) {
-        return asBool(key, null);
+    public Boolean asBoolean(String key) {
+        return asBoolean(key, null);
     }
 
-    public Boolean asBool(String key, Boolean defaultValue) {
+    public Boolean asBoolean(String key, Boolean defaultValue) {
         Object value = value(key);
         return (value == null) ? defaultValue : ClassConvertUtils.convert(value, Boolean.class);
     }
@@ -155,7 +155,7 @@ public abstract class MapConverter {
         return (values == null) ? ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY : ClassConvertUtils.convertArrays(values, Double.class);
     }
 
-    public Boolean[] asBools(String key) {
+    public Boolean[] asBooleans(String key) {
         String[] values = values(key);
         return (values == null) ? ArrayUtils.EMPTY_BOOLEAN_OBJECT_ARRAY : ClassConvertUtils.convertArrays(values, Boolean.class);
     }

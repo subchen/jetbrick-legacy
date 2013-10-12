@@ -1,19 +1,17 @@
 package jetbrick.commons.io;
 
 import java.io.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 import jetbrick.commons.bean.ClassConvertUtils;
 import jetbrick.commons.bean.conv.MapConverter;
 import jetbrick.commons.exception.SystemException;
 
 public class PropertiesFile extends MapConverter {
     protected Properties props = new Properties();
-    protected String encoding = null;
 
-    public PropertiesFile(Properties props, String encoding) {
+    public PropertiesFile(Properties props) {
         this.props = props;
-        this.encoding = encoding;
     }
 
     public PropertiesFile(File file) {
@@ -25,36 +23,43 @@ public class PropertiesFile extends MapConverter {
     }
 
     public PropertiesFile(File file, String encoding) {
-        this.encoding = encoding;
-
         try {
             props.load(new FileInputStream(file));
+            translate(encoding);
         } catch (Throwable e) {
             throw SystemException.unchecked(e);
         }
     }
 
     public PropertiesFile(InputStream is, String encoding) {
-        this.encoding = encoding;
-
         try {
             props.load(is);
+            translate(encoding);
         } catch (Throwable e) {
             throw SystemException.unchecked(e);
         }
     }
 
-    @Override
-    protected Object value(String key) {
-        String value = props.getProperty(key);
-        if (value != null && encoding != null) {
+    protected void translate(String encoding) {
+        if (encoding == null) return;
+
+        Enumeration<String> en = (Enumeration<String>) props.propertyNames();
+        while (en.hasMoreElements()) {
+            String name = en.nextElement();
+            String value = props.getProperty(name);
+            if (value == null) continue;
             try {
                 value = new String(value.getBytes("ISO8859-1"), encoding);
+                props.put(name, value);
             } catch (Throwable e) {
                 throw SystemException.unchecked(e);
             }
         }
-        return value;
+    }
+
+    @Override
+    protected Object value(String key) {
+        return props.getProperty(key);
     }
 
     @Override
@@ -83,6 +88,6 @@ public class PropertiesFile extends MapConverter {
                 p.put(key, entry.getValue());
             }
         }
-        return new PropertiesFile(p, encoding);
+        return new PropertiesFile(p);
     }
 }
