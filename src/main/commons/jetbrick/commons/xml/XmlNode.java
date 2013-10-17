@@ -103,8 +103,6 @@ public class XmlNode {
 
     /**
      * Get a unique xpath expression.
-     * 
-     * @return
      */
     public String path() {
         return node.getUniquePath();
@@ -112,6 +110,10 @@ public class XmlNode {
 
     public XmlNode parent() {
         return transform(node.getParent());
+    }
+
+    public XmlNode root() {
+        return transform(node.getDocument().getRootElement());
     }
 
     public boolean isRoot() {
