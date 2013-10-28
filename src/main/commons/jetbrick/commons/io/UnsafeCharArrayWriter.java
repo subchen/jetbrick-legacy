@@ -1,6 +1,7 @@
 package jetbrick.commons.io;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
 /**

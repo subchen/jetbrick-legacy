@@ -1,6 +1,6 @@
 package jetbrick.commons.bean.conv;
 
-import java.util.*;
+import java.util.Map;
 import jetbrick.commons.bean.ClassConvertUtils;
 
 /**
