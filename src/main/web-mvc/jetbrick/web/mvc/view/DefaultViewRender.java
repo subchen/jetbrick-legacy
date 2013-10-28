@@ -62,9 +62,9 @@ public class DefaultViewRender extends AbstractViewRender {
         }
 
         @Override
-        public void finalize() throws Throwable {
-            super.finalize();
+        protected void finalize() throws Throwable {
             this.close();
+            super.finalize();
         }
 
         @Override

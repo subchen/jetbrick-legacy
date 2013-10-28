@@ -16,12 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 //必须确保 entity 和 dao 类的初始化不依赖这个类
+@SuppressWarnings("unchecked")
 public class EntityUtils {
     private static final String SCHEMA_FILE = "/META-INF/schema-table.xml";
     private static final ListOrderedMap schema_map = new ListOrderedMap();
-    private static final Map<Class<?>, EntityCache<?>> cache_map = new HashMap();
-    private static final Map<Class<?>, RowMapper<?>> row_mapper_map = new HashMap();
-    private static final Map<Class<?>, EntityDaoHelper<?>> dao_helper_map = new HashMap();
+    private static final Map<Class<?>, EntityCache<?>> cache_map = new HashMap<Class<?>, EntityCache<?>>();
+    private static final Map<Class<?>, RowMapper<?>> row_mapper_map = new HashMap<Class<?>, RowMapper<?>>();
+    private static final Map<Class<?>, EntityDaoHelper<?>> dao_helper_map = new HashMap<Class<?>, EntityDaoHelper<?>>();
     private static final SequenceIdProvider seq_id_provider = new JdbcSequenceIdProvider(DataSourceUtils.getDataSource());
 
     static {
@@ -31,7 +32,7 @@ public class EntityUtils {
 
             InputStream schemaXml = Thread.currentThread().getContextClassLoader().getResourceAsStream(SCHEMA_FILE);
 
-            List<Class<?>> entityClassList = new ArrayList();
+            List<Class<?>> entityClassList = new ArrayList<Class<?>>();
             entityClassList.add(SchemaChecksum.class);
             entityClassList.add(SchemaEnum.class);
 
@@ -64,11 +65,11 @@ public class EntityUtils {
     }
 
     public static List<Class<? extends Entity>> getEntityClassList() {
-        return new ArrayList(schema_map.keyList());
+        return new ArrayList<Class<? extends Entity>>(schema_map.keyList());
     }
 
     public static List<SchemaInfo<? extends Entity>> getSchemaList() {
-        return new ArrayList(schema_map.valueList());
+        return new ArrayList<SchemaInfo<? extends Entity>>(schema_map.valueList());
     }
 
     public static <T extends Entity> SchemaInfo<T> getSchema(Class<T> entityClass) {

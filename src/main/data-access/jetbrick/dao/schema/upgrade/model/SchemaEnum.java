@@ -114,7 +114,7 @@ public class SchemaEnum extends Entity {
 
     //------ cache --------------------------------------------
     @SuppressWarnings("unchecked")
-    public static final EntityCache CACHE = EntityCache.NO_CACHE;
+    public static final EntityCache<SchemaEnum> CACHE = (EntityCache<SchemaEnum>) EntityCache.NO_CACHE;
 
     //------ dao -----------------------------------
     public static final RowMapper<SchemaEnum> ROW_MAPPER = new RowMapper<SchemaEnum>() {
@@ -129,7 +129,7 @@ public class SchemaEnum extends Entity {
         }
     };
 
-    public static final EntityDaoHelper<SchemaEnum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAO, SchemaEnum.class, SCHEMA, ROW_MAPPER);
+    public static final EntityDaoHelper<SchemaEnum> DAO = new JdbcEntityDaoHelper<SchemaEnum>(JdbcEntity.DAO, SchemaEnum.class, SCHEMA, ROW_MAPPER);
 
     @Override
     public int save() {

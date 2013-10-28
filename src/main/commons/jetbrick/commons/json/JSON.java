@@ -9,8 +9,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 public abstract class JSON {
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
     public static JSONString source(String source) {
         return new JSONSource(source);
     }
@@ -38,6 +36,7 @@ public abstract class JSON {
         }
 
         if (object instanceof Date) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             return stringToJSONString(dateFormat.format((Date) object));
         } else if (object instanceof JSONString) {
             return ((JSONString) object).toJSONString();

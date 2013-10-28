@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class RequestIntrospectUtils {
-    protected static Logger log = LoggerFactory.getLogger(RequestIntrospectUtils.class);
+    protected static final Logger log = LoggerFactory.getLogger(RequestIntrospectUtils.class);
 
     public static void introspect(Object form, ServletRequest request) {
         Map<String, String[]> map = request.getParameterMap();

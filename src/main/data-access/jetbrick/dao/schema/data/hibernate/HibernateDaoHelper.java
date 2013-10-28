@@ -533,11 +533,12 @@ public class HibernateDaoHelper implements SimpleDaoHelper {
     private Query createQueryByMap(Session session, String hql, Map<String, Object> parameters) {
         Query query = createQueryByHql(session, hql);
         if (parameters != null) {
-            for (String key : parameters.keySet()) {
+            for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+                String key = entry.getKey();
                 String regex = "\\:" + key + "(\\s|\\)|$)";
                 Pattern p = Pattern.compile(regex);
                 if (p.matcher(hql).find()) {
-                    Object value = parameters.get(key);
+                    Object value = entry.getValue();
                     if (value == null) {
                         query.setParameter(key, null);
                     } else if (value instanceof Object[]) {

@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import jetbrick.web.mvc.router.RouteInfoImpl;
 
 public abstract class RouteInfo {
-    public static RouteInfo NOT_FOUND = new RouteInfoImpl();
+    public static final RouteInfo NOT_FOUND = new RouteInfoImpl();
 
     protected Class<?> controllerClass;
     protected Method actionMethod;

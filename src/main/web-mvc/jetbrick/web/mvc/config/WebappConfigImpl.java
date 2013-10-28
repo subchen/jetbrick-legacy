@@ -44,7 +44,8 @@ public class WebappConfigImpl extends WebappConfig {
         }
 
         try {
-            userConfig = (UserConfig) Class.forName(configClass).newInstance();
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            userConfig = (UserConfig) contextClassLoader.loadClass(configClass).newInstance();
             userConfig.init(this);
             userConfig.configPlugins(plugins);
             userConfig.configInterceptors(interceptors);
@@ -68,7 +69,8 @@ public class WebappConfigImpl extends WebappConfig {
 
     private void lookupSpringAppContext() {
         try {
-            Class<?> clazz = Class.forName("org.springframework.web.context.support.WebApplicationContextUtils");
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            Class<?> clazz = contextClassLoader.loadClass("org.springframework.web.context.support.WebApplicationContextUtils");
             Method m = clazz.getMethod("getWebApplicationContext", ServletContext.class);
             springAppContext = m.invoke(null, filterConfig.getServletContext());
             if (springAppContext == null) {

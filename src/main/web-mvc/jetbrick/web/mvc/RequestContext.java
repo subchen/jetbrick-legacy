@@ -7,7 +7,6 @@ import jetbrick.web.mvc.config.WebappConfig;
 import jetbrick.web.mvc.multipart.FileItem;
 import jetbrick.web.mvc.multipart.FileUploaderRequest;
 import jetbrick.web.utils.RequestIntrospectUtils;
-import org.apache.commons.collections.EnumerationUtils;
 
 public class RequestContext {
     private final static ThreadLocal<RequestContext> threadlocalContext = new ThreadLocal<RequestContext>();
@@ -90,7 +89,7 @@ public class RequestContext {
     }
 
     public List<String> getHeaders(String key) {
-        return EnumerationUtils.toList(request.getHeaders(key));
+        return Collections.list(request.getHeaders(key));
     }
 
     public Integer getId() {

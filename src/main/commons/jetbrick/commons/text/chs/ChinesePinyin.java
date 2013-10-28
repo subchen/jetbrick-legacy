@@ -3,6 +3,7 @@ package jetbrick.commons.text.chs;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -21,7 +22,6 @@ public class ChinesePinyin {
 
     private ChinesePinyin() {
         InputStream is = getClass().getResourceAsStream("ChinesePinyin.dat");
-
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"));
             String line = null;
@@ -37,6 +37,8 @@ public class ChinesePinyin {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(is);
         }
     }
 

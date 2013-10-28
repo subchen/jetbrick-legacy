@@ -113,7 +113,8 @@ public class SchemaChecksum extends Entity {
     //------ one-to-many --------------------------------------
 
     //------ cache --------------------------------------------
-    public static final EntityCache CACHE = EntityCache.NO_CACHE;
+    @SuppressWarnings("unchecked")
+    public static final EntityCache<SchemaChecksum> CACHE = (EntityCache<SchemaChecksum>) EntityCache.NO_CACHE;
 
     //------ dao -----------------------------------
     public static final RowMapper<SchemaChecksum> ROW_MAPPER = new RowMapper<SchemaChecksum>() {
@@ -128,7 +129,7 @@ public class SchemaChecksum extends Entity {
         }
     };
 
-    public static final EntityDaoHelper<SchemaChecksum> DAO = new JdbcEntityDaoHelper(JdbcEntity.DAO, SchemaChecksum.class, SCHEMA, ROW_MAPPER);
+    public static final EntityDaoHelper<SchemaChecksum> DAO = new JdbcEntityDaoHelper<SchemaChecksum>(JdbcEntity.DAO, SchemaChecksum.class, SCHEMA, ROW_MAPPER);
 
     @Override
     public int save() {

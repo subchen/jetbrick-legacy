@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import jetbrick.commons.bean.ClassConvertUtils;
 import jetbrick.commons.bean.conv.MapConverter;
 import jetbrick.commons.exception.SystemException;
+import org.apache.commons.io.IOUtils;
 
 public class PropertiesFile extends MapConverter {
     protected Properties props = new Properties();
@@ -23,11 +24,15 @@ public class PropertiesFile extends MapConverter {
     }
 
     public PropertiesFile(File file, String encoding) {
+        InputStream is = null;
         try {
-            props.load(new FileInputStream(file));
+            is = new FileInputStream(file);
+            props.load(is);
             translate(encoding);
         } catch (Throwable e) {
             throw SystemException.unchecked(e);
+        } finally {
+            IOUtils.closeQuietly(is);
         }
     }
 
@@ -43,6 +48,7 @@ public class PropertiesFile extends MapConverter {
     protected void translate(String encoding) {
         if (encoding == null) return;
 
+        @SuppressWarnings("unchecked")
         Enumeration<String> en = (Enumeration<String>) props.propertyNames();
         while (en.hasMoreElements()) {
             String name = en.nextElement();

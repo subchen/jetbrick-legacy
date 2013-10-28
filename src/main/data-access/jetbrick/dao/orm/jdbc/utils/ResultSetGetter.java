@@ -25,7 +25,7 @@ public class ResultSetGetter {
         if (String.class.equals(requiredType)) {
             value = rs.getString(index);
         } else if (Integer.class.equals(requiredType)) {
-            value = new Integer(rs.getInt(index));
+            value = Integer.valueOf(rs.getInt(index));
             wasNullCheck = true;
         } else if (Double.class.equals(requiredType)) {
             value = new Double(rs.getDouble(index));
@@ -42,13 +42,13 @@ public class ResultSetGetter {
         } else if (java.util.Date.class.equals(requiredType)) {
             value = new java.util.Date(rs.getTimestamp(index).getTime());
         } else if (Byte.class.equals(requiredType)) {
-            value = new Byte(rs.getByte(index));
+            value = Byte.valueOf(rs.getByte(index));
             wasNullCheck = true;
         } else if (Short.class.equals(requiredType)) {
-            value = new Short(rs.getShort(index));
+            value = Short.valueOf(rs.getShort(index));
             wasNullCheck = true;
         } else if (Long.class.equals(requiredType)) {
-            value = new Long(rs.getLong(index));
+            value = Long.valueOf(rs.getLong(index));
             wasNullCheck = true;
         } else if (Float.class.equals(requiredType)) {
             value = new Float(rs.getFloat(index));

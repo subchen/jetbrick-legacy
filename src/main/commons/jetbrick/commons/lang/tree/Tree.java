@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Tree<T> {
-    protected static Logger log = LoggerFactory.getLogger(Tree.class);
+    protected static final Logger log = LoggerFactory.getLogger(Tree.class);
 
     @SuppressWarnings("unchecked")
     private Map<String, TreeNode<T>> nodesMap = new ListOrderedMap();

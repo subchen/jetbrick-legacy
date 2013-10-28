@@ -7,7 +7,7 @@ import jetbrick.commons.cache.*;
 import jetbrick.commons.cache.ehcache.EhCacheProvider;
 
 public class EntityCache<T extends Entity> {
-    public static final EntityCache NO_CACHE = new EntityCache();
+    public static final EntityCache<?> NO_CACHE = new EntityCache<Entity>();
 
     private final Cache id_cache;
     private final Cache page_cache;
@@ -24,6 +24,7 @@ public class EntityCache<T extends Entity> {
     }
 
     // ----------------------------------------------
+    @SuppressWarnings("unchecked")
     public T getEntity(Serializable id) {
         return (T) id_cache.get(id);
     }
@@ -88,8 +89,8 @@ public class EntityCache<T extends Entity> {
             for (int i = 0; i < ids.length; i++) {
                 ids[i] = entities.get(i).getId();
             }
+            addEntities(entities);
         }
-        addEntities(entities);
         addEntityObjectAsIds(key, ids);
     }
 

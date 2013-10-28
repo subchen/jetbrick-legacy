@@ -209,7 +209,7 @@ public abstract class ServletUtils {
         StringWriter sw = new StringWriter();
         PrintWriter out = new PrintWriter(sw);
 
-        final String FORMAT = "%20s: %s\n";
+        final String FORMAT = "%20s: %s%n";
         final char PADDING_CHAR = '=';
         final int PADDING_SIZE = 60;
 

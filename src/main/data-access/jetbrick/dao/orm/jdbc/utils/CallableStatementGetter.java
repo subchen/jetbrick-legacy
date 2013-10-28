@@ -20,7 +20,7 @@ public class CallableStatementGetter {
         if (String.class.equals(requiredType)) {
             value = cs.getString(index);
         } else if (Integer.class.equals(requiredType)) {
-            value = new Integer(cs.getInt(index));
+            value = Integer.valueOf(cs.getInt(index));
             wasNullCheck = true;
         } else if (Double.class.equals(requiredType)) {
             value = new Double(cs.getDouble(index));
@@ -37,13 +37,13 @@ public class CallableStatementGetter {
         } else if (java.util.Date.class.equals(requiredType)) {
             value = new java.util.Date(cs.getTimestamp(index).getTime());
         } else if (Byte.class.equals(requiredType)) {
-            value = new Byte(cs.getByte(index));
+            value = Byte.valueOf(cs.getByte(index));
             wasNullCheck = true;
         } else if (Short.class.equals(requiredType)) {
-            value = new Short(cs.getShort(index));
+            value = Short.valueOf(cs.getShort(index));
             wasNullCheck = true;
         } else if (Long.class.equals(requiredType)) {
-            value = new Long(cs.getLong(index));
+            value = Long.valueOf(cs.getLong(index));
             wasNullCheck = true;
         } else if (Float.class.equals(requiredType)) {
             value = new Float(cs.getFloat(index));

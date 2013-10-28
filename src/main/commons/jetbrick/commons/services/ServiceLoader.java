@@ -4,10 +4,11 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Properties;
 import jetbrick.commons.exception.SystemException;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class ServiceLoader {
-    private static final String DEFAULT_SERVICES_FILE = "/jetbrick-services.properties";
+    private static final String DEFAULT_SERVICES_FILE = "jetbrick-services.properties";
     private static final Properties props = getServiceProperties();
 
     /**
@@ -71,7 +72,8 @@ public abstract class ServiceLoader {
         }
 
         try {
-            return (T) Class.forName(serviceClass).newInstance();
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            return (T) contextClassLoader.loadClass(serviceClass).newInstance();
         } catch (Throwable e) {
             throw SystemException.unchecked(e);
         }
@@ -80,12 +82,15 @@ public abstract class ServiceLoader {
     private static Properties getServiceProperties() {
         Properties p = new Properties();
 
-        InputStream resource = ServiceLoader.class.getResourceAsStream(DEFAULT_SERVICES_FILE);
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        InputStream resource = contextClassLoader.getResourceAsStream(DEFAULT_SERVICES_FILE);
         if (resource != null) {
             try {
                 p.load(resource);
             } catch (Throwable e) {
                 throw SystemException.unchecked(e);
+            } finally {
+                IOUtils.closeQuietly(resource);
             }
         }
         return p;

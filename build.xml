@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="jar" basedir=".">
+    <property file="${basedir}/build.properties" />
+
+    <property name="product.author" value="Guoqiang Chen" />
+    <property name="product.vendor" value="subchen@gmail.com" />
+    <property name="product.name" value="jetbrick-framework" />
+    <property name="product.version" value="1.0.0" />
+
+    <path id="compile.classpath">
+        <fileset dir="${basedir}/lib" includes="**/*.jar" />
+    </path>
+
+    <patternset id="compile.resource">
+        <include name="**/*.properties" />
+        <include name="**/*.xml" />
+        <include name="**/*.dat" />
+    </patternset>
+
+    <target name="compile.clean">
+        <delete>
+            <fileset dir="${basedir}/bin" includes="*.*" />
+        </delete>
+    </target>
+
+    <target name="compile" depends="compile.clean">
+        <javac destdir="${basedir}/bin" classpathref="compile.classpath"
+               debug="on" encoding="utf-8"
+               nowarn="true" deprecation="off"
+               source="1.6" target="1.6"
+               includeantruntime="on">
+            <src path="${basedir}/src/main/commons" />
+        	<src path="${basedir}/src/main/data-access" />
+            <src path="${basedir}/src/main/web-mvc" />
+        </javac>
+        <copy todir="${basedir}/bin">
+            <fileset dir="${basedir}/src/main/commons" >
+                <patternset refid="compile.resource" />
+            </fileset>
+        	<fileset dir="${basedir}/src/main/data-access" >
+                <patternset refid="compile.resource" />
+            </fileset>
+        	<fileset dir="${basedir}/src/main/web-mvc" >
+                <patternset refid="compile.resource" />
+            </fileset>
+            <fileset dir="${basedir}/src/main/resources" >
+                <patternset refid="compile.resource" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar jarfile="${basedir}/${product.name}-${product.version}.jar" whenempty="fail">
+            <fileset dir="${basedir}/bin">
+                <include name="jetbrick/**/*.class" />
+                <include name="jetbrick/**/*.properties" />
+            	<include name="jetbrick/**/*.xml" />
+            	<include name="jetbrick/**/*.data" />
+            </fileset>
+            <manifest>
+                <attribute name="Built-By" value="${product.author}"/>
+                <attribute name="Implementation-Vendor" value="${product.vendor}"/>
+                <attribute name="Implementation-Title" value="${product.name}"/>
+                <attribute name="Implementation-Version" value="${product.version}"/>
+            </manifest>
+        </jar>
+    </target>
+
+</project>

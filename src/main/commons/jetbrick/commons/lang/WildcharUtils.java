@@ -18,28 +18,29 @@ public class WildcharUtils {
     }
 
     private static String toJavaPattern(String pattern) {
-        String result = "^";
+        StringBuilder sb = new StringBuilder();
+        sb.append('^');
         char metachar[] = { '$', '^', '[', ']', '(', ')', '{', '}', '|', '+', '.', '\\' };
         for (int i = 0; i < pattern.length(); i++) {
             char ch = pattern.charAt(i);
             boolean isMeta = false;
             for (int j = 0; j < metachar.length; j++) {
                 if (ch == metachar[j]) {
-                    result += "\\" + ch;
+                    sb.append('\\').append(ch);
                     isMeta = true;
                     break;
                 }
             }
             if (!isMeta) {
                 if (ch == '*') {
-                    result += "[\u0000-\uffff]*";
+                    sb.append("[\u0000-\uffff]*");
                 } else {
-                    result += ch;
+                    sb.append(ch);
                 }
 
             }
         }
-        result += "$";
-        return result;
+        sb.append('$');
+        return sb.toString();
     }
 }

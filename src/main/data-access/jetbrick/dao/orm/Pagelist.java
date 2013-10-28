@@ -19,7 +19,7 @@ public class Pagelist<T> implements JSONAware {
         page = 1;
         pageSize = 20;
         count = -1;
-        items = Collections.EMPTY_LIST;
+        items = Collections.emptyList();
     }
 
     public Pagelist(HttpServletRequest request) {
@@ -32,7 +32,7 @@ public class Pagelist<T> implements JSONAware {
             pageUrl = pageUrl + (pageUrl.indexOf('?') < 0 ? '?' : '&') + "m=pagelist";
         }
 
-        items = Collections.EMPTY_LIST;
+        items = Collections.emptyList();
     }
 
     private int getParameterAsInteger(HttpServletRequest request, String key, int defaultValue) {
