@@ -20,9 +20,9 @@ public class CamelCaseUtils {
                 nextUpperCase = Character.isUpperCase(s.charAt(i + 1));
             }
 
-            if ((i > 0) && Character.isUpperCase(c)) {
+            if ((i >= 0) && Character.isUpperCase(c)) {
                 if (!upperCase || !nextUpperCase) {
-                    sb.append(SEPARATOR);
+                    if (i > 0) sb.append(SEPARATOR);
                 }
                 upperCase = true;
             } else {
@@ -68,4 +68,12 @@ public class CamelCaseUtils {
         return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
+    public static void main(String[] args) {
+        System.out.println(CamelCaseUtils.toUnderlineName("ISOCertifiedStaff"));
+        System.out.println(CamelCaseUtils.toUnderlineName("CertifiedStaff"));
+        System.out.println(CamelCaseUtils.toUnderlineName("UserID"));
+        System.out.println(CamelCaseUtils.toCamelCase("iso_certified_staff"));
+        System.out.println(CamelCaseUtils.toCamelCase("certified_staff"));
+        System.out.println(CamelCaseUtils.toCamelCase("user_id"));
+    }
 }
