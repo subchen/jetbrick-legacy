@@ -67,7 +67,7 @@ public class ProcessUtils {
         Throwable error;
 
         public boolean good() {
-            return error != null && exitValue == 0;
+            return error == null && exitValue == 0;
         }
 
         public int exitValue() {
