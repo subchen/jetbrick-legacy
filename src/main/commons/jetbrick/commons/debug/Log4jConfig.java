@@ -27,6 +27,7 @@ public class Log4jConfig {
         log.setLevel(Level.toLevel(level, Level.DEBUG));
     }
 
+    @SuppressWarnings("unchecked")
     public List<Logger> getLoggers() {
         Enumeration<Logger> loggers = Logger.getRootLogger().getLoggerRepository().getCurrentLoggers();
         return EnumerationUtils.toList(loggers);

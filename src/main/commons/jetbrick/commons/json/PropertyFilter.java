@@ -23,7 +23,7 @@ public class PropertyFilter implements JSONFilter {
     @Override
     public String apply(Object object, JSONFilter[] filters) {
         try {
-            Map<String, Object> map = new HashMap<String, Object>(names.length);
+            Map<String, Object> map = new HashMap<String, Object>(names.length * 2);
             for (String name : names) {
                 map.put(name, PropertyUtils.getSimpleProperty(object, name));
             }

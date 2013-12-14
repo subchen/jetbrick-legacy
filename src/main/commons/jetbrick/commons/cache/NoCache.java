@@ -44,7 +44,7 @@ public class NoCache implements Cache {
 
     @Override
     public List<Object> getKeys() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override

@@ -34,6 +34,18 @@ public abstract class ServletUtils {
         }
     }
 
+    /**
+     * 获取相对 ContextPath 的 requestURI
+     */
+    public static String getContextRequestUri(HttpServletRequest request) {
+        String uri = request.getServletPath();
+        String pathInfo = request.getPathInfo();
+        if (pathInfo != null && pathInfo.length() > 0) {
+            uri = uri + pathInfo;
+        }
+        return uri;
+    }
+
     public static JSONObject getRequestJSON(HttpServletRequest request) {
         JSONObject json = new JSONObject();
         Enumeration<String> enu = request.getParameterNames();

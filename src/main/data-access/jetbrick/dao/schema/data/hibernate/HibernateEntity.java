@@ -42,7 +42,7 @@ public class HibernateEntity {
     }
 
     private static List<String> getHbmXmlFileList(Dialect dialect) {
-        List<String> filelist = new ArrayList();
+        List<String> filelist = new ArrayList<String>();
 
         String file = "/META-INF/schema-hbm-" + dialect.getName() + ".xml";
         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(file);

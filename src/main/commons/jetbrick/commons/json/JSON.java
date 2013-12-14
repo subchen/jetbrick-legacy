@@ -47,7 +47,7 @@ public abstract class JSON {
 
     private static String dynaBeanToJSONString(DynaBean bean, JSONFilter[] filters) {
         DynaProperty ps[] = bean.getDynaClass().getDynaProperties();
-        Map<String, Object> map = new HashMap<String, Object>(ps.length);
+        Map<String, Object> map = new HashMap<String, Object>(ps.length * 2);
         String name = null;
         for (int i = 0; i < ps.length; i++) {
             name = ps[i].getName();

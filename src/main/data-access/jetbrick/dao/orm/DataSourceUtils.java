@@ -33,6 +33,7 @@ public abstract class DataSourceUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static DataSource doGetDataSource() {
         try {
             InputStream file = DataSourceUtils.class.getResourceAsStream(JDBC_PROPERTIES_FILE);
@@ -41,7 +42,6 @@ public abstract class DataSourceUtils {
             }
 
             PropertiesFile config = new PropertiesFile(file);
-
             Class<DataSource> dataSourceClass = (Class<DataSource>) config.asClass("jdbc.dataSource");
             if (dataSourceClass == null) {
                 throw new SystemException("jdbc.dataSource == null.");

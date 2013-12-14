@@ -159,7 +159,12 @@ public class RequestContext {
 
     //---- url ------------------------------------------------
     public String getUri() {
-        return request.getServletPath();
+        String uri = request.getServletPath();
+        String pathInfo = request.getPathInfo();
+        if (pathInfo != null && pathInfo.length() > 0) {
+            uri = uri + pathInfo;
+        }
+        return uri;
     }
 
     public String getContextUrl(String url) {

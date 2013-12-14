@@ -11,7 +11,6 @@ import jetbrick.dao.schema.data.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("unchecked")
 public class JdbcEntityDaoHelper<T extends Entity> implements EntityDaoHelper<T> {
     private static final int LOAD_SOME_BATCH_SIZE = 100;
 

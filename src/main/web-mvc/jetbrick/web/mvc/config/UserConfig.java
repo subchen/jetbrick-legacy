@@ -6,7 +6,7 @@ import jetbrick.web.mvc.*;
 import jetbrick.web.mvc.intercept.Interceptor;
 import jetbrick.web.mvc.plugin.Plugin;
 import jetbrick.web.mvc.router.SimpleRailsRouter;
-import jetbrick.web.mvc.view.DefaultViewRender;
+import jetbrick.web.mvc.view.ServletViewRender;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -48,7 +48,7 @@ public abstract class UserConfig {
     }
 
     public ViewRender getViewRender() {
-        DefaultViewRender viewRender = new DefaultViewRender();
+        ServletViewRender viewRender = new ServletViewRender();
         viewRender.setViewPattern("*.jsp");
         return viewRender;
     }

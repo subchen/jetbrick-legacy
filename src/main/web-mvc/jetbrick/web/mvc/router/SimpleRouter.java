@@ -10,6 +10,7 @@ import jetbrick.web.mvc.*;
 import jetbrick.web.mvc.config.WebappConfig;
 import jetbrick.web.mvc.controller.After;
 import jetbrick.web.mvc.controller.Before;
+import jetbrick.web.utils.ServletUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class SimpleRouter implements Router {
@@ -34,7 +35,7 @@ public abstract class SimpleRouter implements Router {
 
     @Override
     public RouteInfo getRouteInfo(HttpServletRequest request) {
-        String uri = request.getServletPath();
+        String uri = ServletUtils.getContextRequestUri(request);
         RouteInfo info = routeCache.get(uri);
         if (info == null) {
             info = lookupRouteInfo(request, uri);
